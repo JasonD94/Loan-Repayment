@@ -34,20 +34,63 @@
     </nav>
 
     <div class="container">
-
+    
+      <!-- Header Row -->
       <div class="starter-template">
         <h1>Beat Debt</h1>
         <p class="lead">Use this Loan Repayment Calculator to crush high interest
         debt and become financially independent.</p>
-        
-        <label for="basic-url">Monthly Payment</label>
-        <div class="input-group mb-3">
-          <input type="text" class="form-control" id="monthly-payment-1" aria-describedby="basic-addon3">
+      </div>
+      
+      <!-- User input a loan(s) -->
+      <form id="loanForms">
+        <div class="form-row">
+          <div class="col-6 col-sm-3 text-center">
+            <label for="loanName1">Loan Name</label>
+            <input type="text" class="form-control" id="loanName1" placeholder="Loan 0">
+          </div>
+          <div class="col-6 col-sm-3 text-center">
+            <label for="balance1">Current Balance</label>
+            <input type="text" class="form-control" id="balance1" placeholder="$0">
+          </div>
+          <div class="col-6 col-sm-3 text-center">
+            <label for="minimumPayment1">Monthly Payment</label>
+            <input type="text" class="form-control" id="minimumPayment1" placeholder="$0">
+          </div>
+          <div class="col-5 col-sm-2 text-center">
+            <label for="interestRate1">Interest Rate</label>
+            <input type="text" class="form-control" id="interestRate1" placeholder="0%">
+          </div>
+          <!-- This was tricky, not used to Bootstrap 4. 
+          https://stackoverflow.com/questions/42252443/vertical-align-center-in-bootstrap-4 -->
+          <div class="col-1 col-sm-1 align-self-center">
+            <button type="submit" class="btn btn-secondary">X</button>
+          </div>
         </div>
-        
-        <button type="button" class="btn btn-primary" id="avalanche">Avalanche</button>
-        <button type="button" class="btn btn-secondary" id="snowfall">Snowfall</button>
-        <button type="button" class="btn btn-dark" id="calculate-loan">Calculate</button>
+        <br>
+        <div class="row">
+          <div class="col-sm-3 text-center">
+            <button type="submit" class="btn btn-primary" id="addLoan">Add Loan</button>
+          </div>
+        </div>
+      </form>
+      <br>
+      <form>
+        <div class="form-row">
+          <div class="col-sm-4 text-center">
+            <label for="totalMonthlyPayment">Total Monthly Payment</label>
+            <input type="text" class="form-control" id="totalMonthlyPayment" placeholder="Total Monthly Payment">
+          </div>
+          <div class="col-sm-2"></div>
+          <div class="col-sm-6 text-center">
+            <button type="submit" class="btn btn-primary" id="addLoan">Calculate</button>
+          </div>
+        </div>
+      </form>
+      <!-- TODO: CSS spacing here and between forms -->
+      <br><br>
+      <div id="loanCalculationOutput" class="text-center">
+        Some fancy graphs and tables will appear here.
       </div>
     </div><!-- /.container -->
 
