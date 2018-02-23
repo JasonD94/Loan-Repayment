@@ -1,7 +1,58 @@
+/*
+    File: calculateInterest.js
+    Jason Downing - student at UMass Lowell in 91.461 GUI Programming I
+    Contact: jdowning@cs.uml.edu or jason_downing@student.uml.edu
+    MIT Licensed - see http://opensource.org/licenses/MIT for details.
+    Anyone may freely use this code. Just don't sue me if it breaks stuff.
+    Created: 2/22/2018
+
+    This JS file contains loan interest calculation functions
+*/
+
+// Wrapping the click listener in a ready so that the DOM will be all loaded
+// when this fires up.
+$(document).ready(function () {
+  $( "#calculateBtn" ).click(function() {
+    OnCalculate()
+  });
+});
+
+// Calculate Button calls into this function
+function OnCalculate() {
+  var amortizationTable = GenerateAmortizationTable();
+  
+  // Generate the table in the loanCalculationOutput div
+}
+
+// Grab the UI fields, check if they exist, and then run the CalculateTotalInterest
+// function to generate an object that we can parse to generate an amortization table
+// for the given loan.
+function GenerateAmortizationTable() {
+  var startingBalance = $("balance1").val();
+  var monthlyPayment = $("minimumPayment1").val();
+  var interestRate = $("interestRate1").val();
+  
+  // Empty checks
+  if (!startingBalance)
+  {
+    // For Sweet Alerts Docs: https://sweetalert.js.org/docs/
+    swal({
+      icon: "warning",
+      text: "Looks like you forgot to include a Starting Balance. 😢"
+    });
+    
+    return {};
+  }
+  
+  var amortizationTable = CalculateTotalInterest(startingBalance, monthlyPayment, interestRate);
+  
+  return amortizationTable;
+}
+
 // Given a starting balance, a monthly loan payment, and the interest rate of
 // a loan, this function returns the total amount of interest paid over the
 // time of the loan.
-function calculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
+function CalculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
   var currentInterest = 0, newBalance = startingBalance, monthCount = 1;
   
   // JSON results object for displaying in a table
@@ -45,7 +96,7 @@ function calculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
     
     // Math taken from here
     // https://mozo.com.au/interest-rates/guides/calculate-interest-on-loan
-    currentInterest = calculateMonthlyInterest(startingBalance, interestRate);
+    currentInterest = CalculateMonthlyInterest(startingBalance, interestRate);
     principalPaid = monthlyPayment - currentInterest;
     newBalance = newBalance - (monthlyPayment - currentInterest);
     
@@ -71,7 +122,7 @@ function calculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
 }
 
 // Calculates one month of interest
-function calculateMonthlyInterest(currentBalance, interestRate) {
+function CalculateMonthlyInterest(currentBalance, interestRate) {
   // Convert InterestRate to a percent
   interestRate = interestRate / 100;
   
