@@ -8,6 +8,7 @@
 
     CSS file for the Loan Repayment Caculation Site
 */
+
 body {
   padding-top: 5rem;
 }
@@ -19,4 +20,14 @@ body {
 
 .addLoan {
   margin-top: 3rem;
+}
+
+#debtFreeDate {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+#totalInterestPaid {
+  color: green;
+  font-weight: bold;
 }

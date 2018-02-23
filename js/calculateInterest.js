@@ -43,6 +43,8 @@ function ClearInputs() {
 // Wipes the Amortization Table clean.
 function ClearTable() {
   $("#loanCalculationOutput").empty();
+  $("#debtFreeDate").empty();
+  $("#totalInterestPaid").empty();
 }
 
 // Calculate Button calls into this function
@@ -51,14 +53,14 @@ function OnCalculate() {
   
   // Make sure to Empty the table every run through!
   var tableBody = $("#loanCalculationOutput").empty();
+  $("#debtFreeDate").empty();
+  $("#totalInterestPaid").empty();
   
   /*
-      Get totals to display the first table like:
-      
-      TOTAL MONTHS | TOTAL INTEREST PAID
-  
+      Calculates total interest paid, and debt paid off date
+      Also mainly generates the Amortization Table as a Bootstrap table.
   */
-  var totalMonths = 0;
+  var debtFreeDate;
   var totalInterest = 0;
   
   // Generate each month's row
@@ -73,14 +75,25 @@ function OnCalculate() {
       // Just print integers for Month #'savePreferences
       if (x == 0)
       {
-        tr.append("<td>" + parseFloat(rowArr[x]).toFixed(0) + "</td>");
+        debtFreeDate = rowArr[x];
+        tr.append("<td>" + rowArr[x] + "</td>");
       }
       else
       {
+        // Check for interest column to sum up the interest paid.
+        if (x == 3)
+        {
+          totalInterest += rowArr[x]
+        }
+        
         tr.append("<td>" + parseFloat(rowArr[x]).toFixed(2) + "</td>");
       }
     }
   }
+  
+  // Set the Debt free by Date and the Total Interest paid amount.
+  $("#debtFreeDate").append(debtFreeDate);
+  $("#totalInterestPaid").append("$" + parseFloat(totalInterest).toFixed(2));
 }
 
 // Grab the UI fields, check if they exist, and then run the CalculateTotalInterest
@@ -155,7 +168,10 @@ function CalculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
   while (newBalance > 0)
   {
     var singleResult = [];
-    singleResult.push(monthCount);
+    
+    // Using datejs, url: http://www.datejs.com/
+    // Can tweak this using standard DateTime formats: https://github.com/datejs/Datejs
+    singleResult.push(Date.today().add(monthCount).months().toString('MMMM dS, yyyy'));
     
     // "Starting Balance" is the old newBalance
     var startingBalance = newBalance;
@@ -164,7 +180,7 @@ function CalculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
     // Monthly Payment edge case: if StartingBalance is less than monthlyPayment,
     // then startingBalance is all we will pay. Since we can't pay more than
     // the actual principal amount obviously.
-    if ( (startingBalance < monthlyPayment) && (startingBalance != 0))
+    if (parseFloat(startingBalance) < parseFloat(monthlyPayment))
     {
       singleResult.push(startingBalance);
     }

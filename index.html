@@ -76,8 +76,8 @@
           </div>
           <!-- This was tricky, not used to Bootstrap 4. 
           https://stackoverflow.com/questions/42252443/vertical-align-center-in-bootstrap-4 -->
-          <div class="col-1 col-sm-1 align-self-center">
-            <button type="submit" class="btn btn-secondary" id="clearInputs">X</button>
+          <div class="col-6 col-sm-1 text-center align-self-center">
+            <button class="btn btn-secondary" id="clearInputs">X</button>
           </div>
         </div>
         <br>
@@ -95,21 +95,35 @@
       <br>
       <form>
         <div class="form-row">
-          <div class="col-sm-4 text-center">
+          <div class="col-6 col-sm-4 text-center">
+            <!-- Once more than one loan is supported, this will be the
+                 total amount that you can afford to pay towards all loans.
+                 It will need to be at least the sum of all loans combined. 
+                 Ideally this would be $50+ above the total minimums and 
+                 then we'd calculate how much quicker the loan will be paid
+                 off by doing that and how much interest will be saved too. -->
             <label for="totalMonthlyPayment">Total Monthly Payment</label>
             <input type="text" class="form-control" id="totalMonthlyPayment" placeholder="Total Monthly Payment">
           </div>
-          <div class="col-sm-7 text-right">
+          <div class="col-6 col-sm-7 text-right">
             <button class="btn btn-primary" id="calculateBtn">Calculate Interest</button>
           </div>
         </div>
         <div class="form-row">
-          <div class="col-sm-11 text-right">
+          <div class="col-12 col-sm-11 text-right">
             <button class="btn btn-primary" id="clearTable">Clear Table</button>
           </div>
         </div>
       </form>
       <!-- TODO: CSS spacing here and between forms -->
+      <br><br>
+      <div class="row">
+        <div class="col-sm-12 text-center">DEBT FREE BY: <span id="debtFreeDate"></span>
+        </div>
+        <div class="col-sm-12 text-center">
+          TOTAL INTEREST PAID: <span id="totalInterestPaid"></span>
+        </div>
+      </div>
       <br><br>
       <table class="table">
         <thead>
@@ -130,11 +144,13 @@
 
     <!-- Bootstrap core JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS
-         Also using sweetalert for awesome alerts-->
+         Also using sweetalert for awesome alerts
+         And Datejs for awesome dates -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script src="js/calculateInterest.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datejs/1.0/date.min.js"></script>
+    <script type="text/javascript" src="js/calculateInterest.js"></script>
   </body>
 </html>
