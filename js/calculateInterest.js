@@ -2,8 +2,7 @@
 // a loan, this function returns the total amount of interest paid over the
 // time of the loan.
 function calculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
-  var totalInterest = 0, currentInterest = 0, newBalance = startingBalance, 
-      monthCount = 1;
+  var currentInterest = 0, newBalance = startingBalance, monthCount = 1;
   
   // JSON results object for displaying in a table
   var resultsObj = {};
@@ -26,23 +25,42 @@ function calculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
   while (newBalance > 0)
   {
     var singleResult = [];
-    singleResult.Push("Month #" + monthCount);
-    singleResult.Push(newBalance);
+    singleResult.push("Month #" + monthCount);
+    
+    // "Starting Balance" is the old newBalance
+    var startingBalance = newBalance;
+    singleResult.push(startingBalance);    
+    
+    // Monthly Payment edge case: if StartingBalance is less than monthlyPayment,
+    // then startingBalance is all we will pay. Since we can't pay more than
+    // the actual principal amount obviously.
+    if (startingBalance < monthlyPayment)
+    {
+      singleResult.push(startingBalance);
+    }
+    else
+    {
+      singleResult.push(monthlyPayment);
+    }
     
     // Math taken from here
     // https://mozo.com.au/interest-rates/guides/calculate-interest-on-loan
     currentInterest = calculateMonthlyInterest(startingBalance, interestRate);
     principalPaid = monthlyPayment - currentInterest;
     newBalance = newBalance - (monthlyPayment - currentInterest);
-    totalInterest += currentInterest;
     
-    // Note: going to need to handle when monthlyPayment is less than the normal amount.
-    // Obviously if your payment is normally $100 a month, but you only owe $50, that
-    // means the payment for that month is just $50.
-    singleResult.Push(monthlyPayment);
-    singleResult.Push(currentInterest);
-    singleResult.Push(principalPaid);
-    singleResult.Push(newBalance);
+    singleResult.push(currentInterest);
+    singleResult.push(principalPaid);
+    
+    // New Balance edge case: can't be less than 0, if it's negative, make it 0.
+    if (newBalance < 0)
+    {
+      singleResult.push(0);
+    }
+    else
+    {
+      singleResult.push(newBalance);
+    }
     
     // Add a row into the results object
     resultsObj["Month" + monthCount] = singleResult;
