@@ -20,6 +20,7 @@ $(document).ready(function () {
     // NOTE: button tags by default use Submit. I'm doing this to cancel the
     // default, and prevent the page from refreshing. See this post for more info: 
     // https://stackoverflow.com/questions/23420795/why-would-a-button-click-event-cause-site-to-reload-in-a-bootstrap-form
+    // Also seems like adding type="button" to the button works too in FireFox
     event.preventDefault();
   });
   
@@ -105,6 +106,16 @@ function OnCalculate() {
   var debtFreeDate;
   var totalInterest = 0;
   
+  /*
+      Plotly.js object.
+  */
+  var traceInterest = {
+    x: [1, 2, 3, 4],
+    y: [10, 15, 13, 17],
+    type: 'scatter'
+  };
+  var data = traceInterest;
+  
   // Generate each month's row
   for (var key in amortizationTable)
   {
@@ -167,6 +178,10 @@ function OnCalculate() {
     $("#totalMonthlyCalculation").append(interestAmountDiv);
     $("#totalMonthlyCalculation").append("<div class='col-sm-2 text-center'</div>");
   }
+  
+  // Some Plotly.js tests can go here.
+  //Plotly.newPlot('plotlyGraph', data);
+  
 }
 
 // Grab the UI fields, check if they exist, and then run the CalculateTotalInterest

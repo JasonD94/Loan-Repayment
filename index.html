@@ -81,7 +81,7 @@
           <!-- This was tricky, not used to Bootstrap 4. 
           https://stackoverflow.com/questions/42252443/vertical-align-center-in-bootstrap-4 -->
           <div class="col-6 col-sm-1 text-center align-self-center">
-            <button class="btn btn-secondary" id="clearInputs">X</button>
+            <button type="button" class="btn btn-secondary" id="clearInputs">X</button>
           </div>
         </div>
         <br>
@@ -115,17 +115,17 @@
             <input type="text" class="form-control" id="totalMonthlyPayment" placeholder="Monthly Payment above the minimum">
           </div>
           <div class="col-6 col-sm-7 text-right">
-            <button class="btn btn-primary" id="calculateBtn">Calculate Interest</button>
+            <button type="button" class="btn btn-primary" id="calculateBtn">Calculate Interest</button>
           </div>
         </div>
         <div class="form-row">
           <div class="col-12 col-sm-11 text-right">
-            <button class="btn btn-primary" id="clearTable">Clear Table</button>
+            <button type="button" class="btn btn-primary" id="clearTable">Clear Table</button>
           </div>
         </div>
       </form>
       <!-- TODO: CSS spacing here and between forms -->
-      <br><br>
+      <br>
       <div class="row">
         <div class='col-sm-12 text-center'>
           <p class='totalMonthlyNote'>Paying the <span class="textUnderline">MINIMUM</span> Monthly Payment</p>
@@ -147,7 +147,15 @@
           for comparision.</p>
         </div>
       </div>
-      <br><br>
+      <br>
+      <!-- Plotly.js graph will go here -->
+      <!--
+      <div class="row">
+        <div class="col-sm-12">
+          <div id="plotlyGraph"></div>
+        </div>
+      </div>
+      <br><br>-->
       <table class="table">
         <thead>
           <tr>
@@ -168,10 +176,12 @@
     <!-- Bootstrap core JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS
          Also using sweetalert for awesome alerts
-         And Datejs for awesome dates -->
+         And Datejs for awesome dates
+         And Plotly.js for awesome graphs-->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datejs/1.0/date.min.js"></script>
     <script type="text/javascript" src="js/calculateInterest.js"></script>
