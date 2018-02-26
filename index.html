@@ -12,7 +12,7 @@
     <!--
       File: index.html
       Jason Downing
-      Contact: jason@downing.io
+      Contact: jason [AT] downing [DOT] io
       MIT Licensed - see http://opensource.org/licenses/MIT for details.
       Anyone may freely use this code. Just don't sue me if it breaks stuff.
       Created: 2/21/2018
@@ -67,7 +67,7 @@
             <input type="text" class="form-control" id="balance1" placeholder="$0">
           </div>
           <div class="col-6 col-sm-4 text-center">
-            <label for="minimumPayment1">Monthly Payment</label>
+            <label for="minimumPayment1">Minimum Monthly Payment</label>
             <input type="text" class="form-control" id="minimumPayment1" placeholder="$0">
           </div>
           <div class="col-6 col-sm-3 text-center">
@@ -101,9 +101,14 @@
                  It will need to be at least the sum of all loans combined. 
                  Ideally this would be $50+ above the total minimums and 
                  then we'd calculate how much quicker the loan will be paid
-                 off by doing that and how much interest will be saved too. -->
+                 off by doing that and how much interest will be saved too.
+
+                This can also be used to compare how much quicker a loan will
+                be paid off if you pay higher than the minimum. 
+                
+                TODO: ADD TOOL TIP TO DISPLAY THIS INFORMATION! -->
             <label for="totalMonthlyPayment">Total Monthly Payment</label>
-            <input type="text" class="form-control" id="totalMonthlyPayment" placeholder="Total Monthly Payment">
+            <input type="text" class="form-control" id="totalMonthlyPayment" placeholder="Monthly Payment above the minimum">
           </div>
           <div class="col-6 col-sm-7 text-right">
             <button class="btn btn-primary" id="calculateBtn">Calculate Interest</button>
@@ -118,10 +123,24 @@
       <!-- TODO: CSS spacing here and between forms -->
       <br><br>
       <div class="row">
-        <div class="col-sm-12 text-center">DEBT FREE BY: <span id="debtFreeDate"></span>
+        <div class='col-sm-12 text-center'>
+          <p class='totalMonthlyNote'>Paying the <span class="textUnderline">MINIMUM</span> Monthly Payment</p>
         </div>
+        <div class="col-sm-2 text-center"></div>
+        <div class="col-sm-4 text-center">
+          <p class="bordersDebt">DEBT FREE BY: <span id="debtFreeDate"></span></p>
+        </div>
+        <div class="col-sm-4 text-center">
+          <p class="bordersInterest">TOTAL INTEREST PAID: <span id="totalInterestPaid"></span></p>
+        </div>
+        <div class="col-sm-2 text-center"></div>
+      </div>
+      <br>
+      <div class="row" id="totalMonthlyCalculation">
         <div class="col-sm-12 text-center">
-          TOTAL INTEREST PAID: <span id="totalInterestPaid"></span>
+          <p class="textItalics">If Total Monthly Payment is entered, and is higher than the minimum 
+          monthly payment, a second date and interest calculation will be displayed here
+          for comparision.</p>
         </div>
       </div>
       <br><br>

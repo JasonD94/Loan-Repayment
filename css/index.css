@@ -1,7 +1,7 @@
 /*
     File: index.css
     Jason Downing
-    Contact: jason@downing.io
+    Contact: jason [AT] downing [DOT] io
     MIT Licensed - see http://opensource.org/licenses/MIT for details.
     Anyone may freely use this code. Just don't sue me if it breaks stuff.
     Created: 2/21/2018
@@ -27,7 +27,65 @@ body {
   text-decoration: underline;
 }
 
-#totalInterestPaid {
-  color: green;
+.debtFreeDateClass {
   font-weight: bold;
+  text-decoration: underline;
+}
+
+#totalInterestPaid {
+  color: #fff;
+  font-weight: bold;
+}
+
+.totalInterestPaidClass {
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Add borders around the "DEBT FREE BY" and "TOTAL INTEREST PAID" columns */
+.bordersDebt {
+  border-style: solid;
+  border-width: 5px;
+  border-color: #000000;      /* BLACK */
+  background-color: #000000;
+  color: #fff;
+}
+
+.bordersInterest {
+  border-style: solid;
+  border-width: 5px;
+  border-color: #ff0000;
+  background-color: #ff0000;
+  color: #fff;
+}
+
+/* These are secondary colors for the Total Monthly Payment Comparision row */
+.bordersDebtAlt {
+  border-style: solid;
+  border-width: 5px;
+  border-color: #efa609;
+  background-color: #efa609;
+  color: #fff;
+}
+
+.bordersInterestAlt {
+  border-style: solid;
+  border-width: 5px;
+  border-color: #007c23;
+  background-color: #007c23;
+  color: #fff;
+}
+
+.textItalics {
+  font-style: italic;
+}
+
+.textUnderline {
+  text-decoration: underline;
+}
+
+.totalMonthlyNote {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
 }
