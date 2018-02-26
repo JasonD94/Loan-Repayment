@@ -12,6 +12,7 @@
 // Wrapping the click listener in a ready so that the DOM will be all loaded
 // when this fires up.
 $(document).ready(function () {
+  
   // Calculates Repayment table
   $( "#calculateBtn" ).click(function() {
     OnCalculate();
@@ -21,17 +22,38 @@ $(document).ready(function () {
     // https://stackoverflow.com/questions/23420795/why-would-a-button-click-event-cause-site-to-reload-in-a-bootstrap-form
     event.preventDefault();
   });
+  
+  // Based on user feedback, this feed was confusing. So, use Sweet Alerts to display
+  // some information on this feed and some background on the project itself.
+  $( "#monthlyPaymentInfo" ).hover(function() {
+    TotalMonthlyPaymentInformation();
+    event.preventDefault();
+  });
+  
   // Clears the Amortization Table
   $( "#clearTable" ).click(function() {
     ClearTable();
     event.preventDefault();
   });
+  
   // Wipes all Loan inputs
   $( "#clearInputs" ).click(function() {
     ClearInputs();
     event.preventDefault();
   });
 });
+
+// Information on the "Total Monthly Payment" fields
+function TotalMonthlyPaymentInformation() {
+  swal({
+      icon: "info",
+      text: "This field is a monthly payment that is greater than the minimum payment \
+      that you would like to compare against for Payoff Date and Total Interest Paid. \
+      For example, if your minimum monthly payment was $100, you could enter $200 in this \
+      feed to see how much quicker you'd pay off the loan, and how much money you would \
+      save in interest."
+    });
+}
 
 // Nukes all input values
 function ClearInputs() {
@@ -159,7 +181,7 @@ function GenerateAmortizationTable() {
   // Empty checks
   if (!startingBalance)
   {
-    // For Sweet Alerts Docs: https://sweetalert.js.org/docs/
+    // For Sweet Alerts Docs: https://sweetalert2.github.io/
     swal({
       icon: "warning",
       text: "Looks like you forgot to include a Starting Balance. 😢"
@@ -169,7 +191,6 @@ function GenerateAmortizationTable() {
   }
   if (!monthlyPayment)
   {
-    // For Sweet Alerts Docs: https://sweetalert.js.org/docs/
     swal({
       icon: "warning",
       text: "Looks like you forgot to include a Monthly Payment. 😢"
@@ -179,7 +200,6 @@ function GenerateAmortizationTable() {
   }
   if (!interestRate)
   {
-    // For Sweet Alerts Docs: https://sweetalert.js.org/docs/
     swal({
       icon: "warning",
       text: "Looks like you forgot to include an Interest Rate. 😢"

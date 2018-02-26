@@ -23,6 +23,10 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
+    <!-- FONT AWESOME!
+         https://fontawesome.com/get-started/web-fonts-with-css -->
+    <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+    
     <!-- Custom styles for this template -->
     <link href="css/index.css" rel="stylesheet">
   </head>
@@ -107,7 +111,7 @@
                 be paid off if you pay higher than the minimum. 
                 
                 TODO: ADD TOOL TIP TO DISPLAY THIS INFORMATION! -->
-            <label for="totalMonthlyPayment">Total Monthly Payment</label>
+            <label for="totalMonthlyPayment">Total Monthly Payment <span id="monthlyPaymentInfo"><i class="fas fa-info-circle"></i></span></label>
             <input type="text" class="form-control" id="totalMonthlyPayment" placeholder="Monthly Payment above the minimum">
           </div>
           <div class="col-6 col-sm-7 text-right">
