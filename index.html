@@ -33,6 +33,7 @@
 
   <body>
 
+    <!-- Navbar -->
     <nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top">
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -48,7 +49,7 @@
       </div>
     </nav>
 
-    <div class="container">
+    <div class="container"> <!-- Main Bootstrap Container -->
     
       <!-- Header Row -->
       <div class="starter-template">
@@ -57,7 +58,7 @@
         debt and become financially independent.</p>
       </div>
       
-      <!-- User input a loan(s) -->
+      <!-- User inputs a loan(s) -->
       <form id="loanForms">
         <div class="form-row">
           <!--
@@ -97,9 +98,7 @@
         -->
       </form>
       
-      <br>
-      
-      <form>
+      <form id="monthlyPaymentForm">
         <div class="form-row">
           <div class="col-6 col-sm-4 text-center">
             <!-- Once more than one loan is supported, this will be the
@@ -110,9 +109,7 @@
                  off by doing that and how much interest will be saved too.
 
                 This can also be used to compare how much quicker a loan will
-                be paid off if you pay higher than the minimum. 
-                
-                TODO: ADD TOOL TIP TO DISPLAY THIS INFORMATION! -->
+                be paid off if you pay higher than the minimum.  -->
             <label for="totalMonthlyPayment">Total Monthly Payment <span id="monthlyPaymentInfo"><i class="fas fa-info-circle"></i></span></label>
             <input type="text" class="form-control" id="totalMonthlyPayment" placeholder="Monthly Payment above the minimum">
           </div>
@@ -127,10 +124,7 @@
         </div>
       </form>
       
-      <!-- TODO: CSS spacing here and between forms -->
-      <br>
-      
-      <div class="row">
+      <div class="row" id="minimumPaymentRow">
         <div class='col-sm-12 text-center'>
           <p class='totalMonthlyNote'>Paying the <span class="textUnderline">MINIMUM</span> Monthly Payment</p>
         </div>
@@ -144,11 +138,7 @@
         <div class="col-sm-2 text-center"></div>
       </div>
       
-      <br>
-      
       <div class="row" id="totalMonthlyCalculation"></div>
-
-      <br>
       
       <!-- Plotly.js graph will go here -->
       <div class="row">
@@ -157,22 +147,33 @@
         </div>
       </div>
       
-      <br><br>
+      <!-- Amortization Table goes here, shows the Balance, Interest Paid and 
+           Principal Paid over time. Using the responsive table class for auto
+           resizing the table on mobile.
+           ALSO: FOLLOW THE DOCS! table-responsive goes on the parent div to 
+           the table!! -->
+      <div class="row" id="tableRow">
+        <div class='col-sm-12 text-center'>
+          <p class='totalMonthlyNote'>Amortization Table</p>
+        </div>
+        <div class="col-sm-12 table-responsive" id="amortizationTable">
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Month</th>
+                <th scope="col">Starting Balance</th>
+                <th scope="col">Repayment</th>
+                <th scope="col">Interest Paid</th>
+                <th scope="col">Principal Paid</th>
+                <th scope="col">New Balance</th>
+              </tr>
+            </thead>
+            <tbody id="loanCalculationOutput">
+            </tbody>
+          </table>
+        </div>
+      </div>
       
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Month</th>
-            <th scope="col">Starting Balance</th>
-            <th scope="col">Repayment</th>
-            <th scope="col">Interest Paid</th>
-            <th scope="col">Principal Paid</th>
-            <th scope="col">New Balance</th>
-          </tr>
-        </thead>
-        <tbody id="loanCalculationOutput">
-        </tbody>
-      </table>
     </div><!-- /.container -->
 
 

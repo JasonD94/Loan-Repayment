@@ -52,16 +52,23 @@ $(document).ready(function () {
     ClearInputs();
     event.preventDefault();
   });
+  
+  // Resize the plotly on window size change. Plotly has a "resize" option in the 
+  // layout option, but doesn't seem like it works very well compared to this.
+  // There's an entire code snippet for doing this on the Plotlyjs docs page:
+  // https://plot.ly/javascript/responsive-fluid-layout/#responsive-/-fluid-layout
+  window.onresize = function() {
+      Plotly.Plots.resize('plotlyGraph');
+  };
 });
 
 // Information on the "Total Monthly Payment" fields
 function TotalMonthlyPaymentInformation() {
   swal({
+      html: true,
       icon: "info",
-      text: "This field is a monthly payment that is greater than the minimum payment \
-      that you would like to compare against for Payoff Date and Total Interest Paid. \
-      For example, if your minimum monthly payment was $100, you could enter $200 in this \
-      feed to see how much quicker you'd pay off the loan, and how much money you would \
+      title: "What this field is",
+      text: "This field is a monthly payment that is greater than the minimum payment that you would like to compare against for Payoff Date and Total Interest Paid. \n For example, if your minimum monthly payment was $100, you could enter $200 in this feild to see how much quicker you'd pay off the loan, and how much money you would \
       save in interest."
     });
 }
@@ -80,6 +87,7 @@ function ClearTable() {
   $("#debtFreeDate").empty();
   $("#totalInterestPaid").empty();
   $("#totalMonthlyCalculation").empty();
+  $('#plotlyGraph').empty();
 }
 
 // Calculate Button calls into this function
@@ -201,6 +209,13 @@ function OnCalculate() {
     $("#totalMonthlyCalculation").append("<div class='col-sm-2 text-center'</div>");
   }
   
+  // Generate the Plot
+  GeneratePlotlyPlots(monthsArr, interestArr, principalArr);
+}
+
+// Given an X and Y axis, this function generates the Plotly.js viz
+function GeneratePlotlyPlots(monthsArr, interestArr, principalArr) 
+{
   // Plotly.js graphs
   var interestPlot = {
     x: monthsArr,
@@ -216,16 +231,17 @@ function OnCalculate() {
   };
   var data = [ interestPlot, principalPlot ];
   var layout = {
-    title: 'Interest Paid on the Loan Over Time',
+    title: 'Interest vs Principal Paid on the Loan Over Time',
     xaxis: {
       title: 'Months'
     },
     yaxis: {
       title: 'Interest'
-    }
+    },
+    autosize: true
   };
   
-  Plotly.newPlot('plotlyGraph', data, layout);
+  Plotly.newPlot('plotlyGraph', data, layout, {displayModeBar: false});
 }
 
 // Grab the UI fields, check if they exist, and then run the CalculateTotalInterest
