@@ -231,7 +231,17 @@ function GeneratePlotlyPlots(monthsArr, interestArr, principalArr)
   };
   var data = [ interestPlot, principalPlot ];
   var layout = {
-    title: 'Interest vs Principal Paid on the Loan Over Time',
+    title: '<b>Interest vs Principal Paid on the Loan Over Time</b>',
+    "titlefont": {
+    "size": 16,
+    },
+    margin: {
+      l: 50,
+      r: 50,
+      b: 100,
+      t: 100,
+      pad: 5
+    },
     xaxis: {
       title: 'Months'
     },
@@ -354,8 +364,6 @@ function CalculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
   var resultsObj = {};
   
   /*
-      Ideally this would contain:
-      
       ResultsObj {
         Month1: {1000, 100, 20, 80, 920}
         ...
@@ -364,6 +372,7 @@ function CalculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
   
       ResultsObject is an object with rows of lists
       Each list has the following:
+            [0]     ,     [1]        ,    [2]   ,     [3]     ,      [4]     ,    [5]
       [Month #Number, StartingBalance, Repayment, InterestPaid, PrincipalPaid, NewBalance]
   */
   

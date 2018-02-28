@@ -95,6 +95,10 @@ body {
 }
 
 /* Needs some space on top */
+#minimumPaymentRow {
+  margin-top: 1.5rem;
+}
+
 #tableRow {
   margin-top: 1.5rem;
 }
