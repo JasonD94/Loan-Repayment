@@ -116,15 +116,12 @@ function OnCalculate() {
   var debtFreeDate;
   var totalInterest = 0;
   
-  /*
-      Plotly.js object.
-  */
-  var traceInterest = {
-    x: [1, 2, 3, 4],
-    y: [10, 15, 13, 17],
-    type: 'scatter'
-  };
-  var data = traceInterest;
+  // Array of months will be our X axis. Y axis will be interest paid, 
+  // principal paid, and the new balance over time.
+  var monthsArr = [];
+  var balanceArr = [];
+  var interestArr = [];
+  var principalArr = [];
   
   // Generate each month's row
   for (var key in amortizationTable)
@@ -142,18 +139,33 @@ function OnCalculate() {
     // Generate the current month's column values
     for (var x = 0; x < rowArr.length; x++)
     {
-      // First column is the Month in "MMMM yyyy" format, so no parsing required.
+      // First column is the Month in "MMMM yyyy" format
       if (x == 0)
       {
         debtFreeDate = rowArr[x];
         tr.append("<td>" + rowArr[x] + "</td>");
+        
+        // Abbreviate the month for the plot
+        var date = Date.parse(rowArr[x]);
+        monthsArr.push(date.toString('MMM yyyy'));
       }
       else
       {
         // Check for interest column to sum up the interest paid.
         if (x == 3)
         {
-          totalInterest += rowArr[x]
+          totalInterest += rowArr[x];
+          interestArr.push(rowArr[x]);
+        }
+        
+        // We also want the Principal Paid and New Balance to plot them
+        if (x == 4)
+        {
+          principalArr.push(rowArr[x]);
+        }
+        if (x == 5)
+        {
+          balanceArr.push(rowArr[x]);
         }
         
         tr.append("<td>" + parseFloat(rowArr[x]).toFixed(2) + "</td>");
@@ -189,8 +201,31 @@ function OnCalculate() {
     $("#totalMonthlyCalculation").append("<div class='col-sm-2 text-center'</div>");
   }
   
-  // Some Plotly.js tests can go here.
-  Plotly.newPlot('plotlyGraph', data);
+  // Plotly.js graphs
+  var interestPlot = {
+    x: monthsArr,
+    y: interestArr,
+    name: 'Interest',
+    type: 'scatter'
+  };
+  var principalPlot = {
+    x: monthsArr,
+    y: principalArr,
+    name: 'Principal',
+    type: 'scatter'
+  };
+  var data = [ interestPlot, principalPlot ];
+  var layout = {
+    title: 'Interest Paid on the Loan Over Time',
+    xaxis: {
+      title: 'Months'
+    },
+    yaxis: {
+      title: 'Interest'
+    }
+  };
+  
+  Plotly.newPlot('plotlyGraph', data, layout);
 }
 
 // Grab the UI fields, check if they exist, and then run the CalculateTotalInterest
@@ -315,10 +350,6 @@ function CalculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
       Each list has the following:
       [Month #Number, StartingBalance, Repayment, InterestPaid, PrincipalPaid, NewBalance]
   */
-  
-  // TODO: if the user enters a payment too small, and the interest grows faster
-  //       than the payments can pay down the principal, this loop could infinite
-  //       loop without the right check!
   
   // Calculate Interest until the loan is paid off.
   while (newBalance > 0)
