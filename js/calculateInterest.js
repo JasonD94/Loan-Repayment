@@ -26,10 +26,20 @@ $(document).ready(function () {
   
   // Based on user feedback, this feed was confusing. So, use Sweet Alerts to display
   // some information on this feed and some background on the project itself.
-  $( "#monthlyPaymentInfo" ).hover(function() {
+  $( "#monthlyPaymentInfo" ).click(function() {
     TotalMonthlyPaymentInformation();
     event.preventDefault();
   });
+  
+  // Also, use onhover to change the "i" icon between primary and secondary color icons.
+  $( "#monthlyPaymentInfo" ).hover(
+    function() {
+      $( "#monthlyPaymentInfo" ).addClass("infoIconPrimary");    // Make Icon change color
+    },
+    function() {
+      $( "#monthlyPaymentInfo" ).removeClass("infoIconPrimary");    
+    }
+  );
   
   // Clears the Amortization Table
   $( "#clearTable" ).click(function() {
@@ -180,8 +190,7 @@ function OnCalculate() {
   }
   
   // Some Plotly.js tests can go here.
-  //Plotly.newPlot('plotlyGraph', data);
-  
+  Plotly.newPlot('plotlyGraph', data);
 }
 
 // Grab the UI fields, check if they exist, and then run the CalculateTotalInterest

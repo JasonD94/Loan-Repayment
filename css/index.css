@@ -89,3 +89,7 @@ body {
   font-weight: bold;
   margin-bottom: 1rem;
 }
+
+.infoIconPrimary {
+  color: red;
+}
