@@ -233,7 +233,7 @@ function GeneratePlotlyPlots(monthsArr, interestArr, principalArr)
   };
   var data = [ interestPlot, principalPlot ];
   var layout = {
-    title: '<b>Interest vs Principal Paid on the Loan Over Time</b>',
+    title: '<b>Interest vs Principal Paid<br> on the Loan Over Time</b>',
     "titlefont": {
     "size": 16,
     },
