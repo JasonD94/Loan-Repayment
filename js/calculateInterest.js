@@ -41,15 +41,10 @@ $(document).ready(function () {
     }
   );
   
-  // Clears the Amortization Table
-  $( "#clearTable" ).click(function() {
-    ClearTable();
-    event.preventDefault();
-  });
-  
-  // Wipes all Loan inputs
+  // Wipes all Loan inputs and the Amortization table
   $( "#clearInputs" ).click(function() {
     ClearInputs();
+    ClearTable();
     event.preventDefault();
   });
   
@@ -96,17 +91,24 @@ function OnCalculate() {
   
   // Infinite loop error check, if we find a -1, we tried to calculate interest
   // on a debt that can never be paid off with the current payment amount!
-  if (parseFloat(amortizationTable) == -1 )
+  if ( parseFloat(amortizationTable) == -1 )
   {
     swal({
       icon: "error",
       text: "This payment plan looks to be unreasonable. I tried calculating interest \
-      on this debt up to the year 2100, and I was unable to pay off the loan. You likely \
-      need to increase the amount you are paying on the loan if at all possible. Other \
-      options would include changing your repayment plan, seeking forgiveness on the \
-      loan, or contributing more per month whenever possible."
+      on this debt up to the year 2100, and I was unable to pay off the loan. \n \
+      You likely need to increase the amount you are paying on the loan if at all possible. \
+      Other  options include: \n \
+      - adjusting your repayment plan \n \
+      - seeking forgiveness on the loan \n \
+      - contributing more per month whenever possible."
     });
     
+    return;
+  }
+  // Check for missing input, so we don't display a blank plotly graph!
+  else if ( parseFloat(amortizationTable) == -2 )
+  {
     return;
   }
   
@@ -272,7 +274,7 @@ function GenerateAmortizationTable() {
       text: "Looks like you forgot to include a Starting Balance. 😢"
     });
     
-    return {};
+    return -2;
   }
   if (!monthlyPayment)
   {
@@ -281,7 +283,7 @@ function GenerateAmortizationTable() {
       text: "Looks like you forgot to include a Monthly Payment. 😢"
     });
     
-    return {};
+    return -2;
   }
   if (!interestRate)
   {
@@ -290,7 +292,7 @@ function GenerateAmortizationTable() {
       text: "Looks like you forgot to include an Interest Rate. 😢"
     });
     
-    return {};
+    return -2;
   }
   if (parseFloat(totalMonthlyPayment) < parseFloat(monthlyPayment))
   {
@@ -300,7 +302,7 @@ function GenerateAmortizationTable() {
       text: "Total Monthly Payment cannot be less than Monthly Payment"
     });
     
-    return {};
+    return -2;
   }
   
   // Calculate the standard amortization

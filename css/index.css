@@ -102,6 +102,9 @@ body {
 #tableRow {
   margin-top: 1.5rem;
 }
+#pills-tab {
+  margin-top: 1.5rem;
+}
 
 /* Also do not want to scroll through months of payment rows, so make it scrollable!
    Table elements don't support this natively, but this helpful CSS does it for us. :)
