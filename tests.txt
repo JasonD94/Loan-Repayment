@@ -1,3 +1,25 @@
-CalculateTotalInterest(1000, 100, 4)
-[Month #Number, StartingBalance, Repayment, InterestPaid, PrincipalPaid, NewBalance]
+TODO: Make automated tests, using an automated testing framework. Options:
+https://raygun.com/blog/javascript-unit-testing-frameworks/
 
+CalculateMonthlyInterest(1000, 4) => 3.33333
+
+CalculateTotalInterest(1000, 100, 4) =>
+ResultsObj: {
+  Month1: {
+    "Month": "March 2018"
+    "StartingBalance": 1000, 
+    "Repayment": 100, 
+    "InterestPaid": 3.3333333333333335, 
+    "PrincipalPaid": 96.66666666666667, 
+    "NewBalance": 903.3333333333334
+  }
+}
+
+CalculateAdditionalMonthlyPayment(1000, 100, 4) => 
+{  
+  "DebtFreeDate": "January 2019",
+  "InterestAmount": 18.76603520873806
+}
+
+GeneratePlotlyPlots() => ?
+GenerateAmortizationTable() => ?

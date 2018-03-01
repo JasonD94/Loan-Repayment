@@ -144,43 +144,31 @@ function OnCalculate() {
     }
     
     var tr = $("<tr/>").appendTo(tableBody);
-    var rowArr = amortizationTable[key];
+    var amortizationRow = amortizationTable[key];
     
-    // Generate the current month's column values
-    for (var x = 0; x < rowArr.length; x++)
-    {
-      // First column is the Month in "MMMM yyyy" format
-      if (x == 0)
-      {
-        debtFreeDate = rowArr[x];
-        tr.append("<td>" + rowArr[x] + "</td>");
-        
-        // Abbreviate the month for the plot
-        var date = Date.parse(rowArr[x]);
-        monthsArr.push(date.toString('MMM yyyy'));
-      }
-      else
-      {
-        // Check for interest column to sum up the interest paid.
-        if (x == 3)
-        {
-          totalInterest += rowArr[x];
-          interestArr.push(rowArr[x]);
-        }
-        
-        // We also want the Principal Paid and New Balance to plot them
-        if (x == 4)
-        {
-          principalArr.push(rowArr[x]);
-        }
-        if (x == 5)
-        {
-          balanceArr.push(rowArr[x]);
-        }
-        
-        tr.append("<td>" + parseFloat(rowArr[x]).toFixed(2) + "</td>");
-      }
-    }
+    // Month is in "MMMM yyyy" format
+    debtFreeDate = amortizationRow["Month"];
+    tr.append("<td>" + amortizationRow["Month"] + "</td>");
+    
+    // Abbreviate the month for the plot
+    var date = Date.parse(amortizationRow["Month"]);
+    monthsArr.push(date.toString('MMM yyyy'));
+
+    // The date is the only one that doesn't get parsed as a float.
+    // Everythign else just gets appended to the current table row.
+    tr.append("<td>" + parseFloat(amortizationRow["StartingBalance"]).toFixed(2) + "</td>");
+    tr.append("<td>" + parseFloat(amortizationRow["Repayment"]).toFixed(2) + "</td>");
+    tr.append("<td>" + parseFloat(amortizationRow["InterestPaid"]).toFixed(2) + "</td>");
+    tr.append("<td>" + parseFloat(amortizationRow["PrincipalPaid"]).toFixed(2) + "</td>");
+    tr.append("<td>" + parseFloat(amortizationRow["NewBalance"]).toFixed(2) + "</td>");
+
+    // Sum up the interest paid.
+    totalInterest += amortizationRow["InterestPaid"];
+    interestArr.push(amortizationRow["InterestPaid"]);
+
+    // We also want the Principal Paid and New Balance to plot them
+    principalArr.push(amortizationRow["PrincipalPaid"]);
+    balanceArr.push(amortizationRow["NewBalance"]);
   }
   
   // Set the Debt free by Date and the Total Interest paid amount.
@@ -197,18 +185,16 @@ function OnCalculate() {
     
     // Create the comparision div's we need to append to the totalMonthlyCalculation div
     var debtFreeDate = totalMonthlyCalculation["DebtFreeDate"];
-    var debtFreeDiv = "<div class='col-sm-4 text-center'><p class='bordersDebtAlt'>DEBT FREE BY: <span class='debtFreeDateClass'>" + debtFreeDate + "</span></p></div>";
+    var debtFreeDiv = "<div class='col-sm-6 text-center'><p class='bordersDebtAlt'>DEBT FREE BY: <span class='debtFreeDateClass'>" + debtFreeDate + "</span></p></div>";
     
     // Make sure to parse the Interest Amount as a float, just like the other interest calculations!
     var interestAmount = parseFloat(totalMonthlyCalculation["InterestAmount"]).toFixed(2);
-    var interestAmountDiv = "<div class='col-sm-4 text-center'><p class='bordersInterestAlt'>TOTAL INTEREST PAID: <span class='totalInterestPaidClass'>$" + interestAmount + "</span></p></div>";
+    var interestAmountDiv = "<div class='col-sm-6 text-center'><p class='bordersInterestAlt'>TOTAL INTEREST PAID: <span class='totalInterestPaidClass'>$" + interestAmount + "</span></p></div>";
     
     $("#totalMonthlyCalculation").empty();
     $("#totalMonthlyCalculation").append(totalMonthlyNote);
-    $("#totalMonthlyCalculation").append("<div class='col-sm-2 text-center'</div>");
     $("#totalMonthlyCalculation").append(debtFreeDiv);
     $("#totalMonthlyCalculation").append(interestAmountDiv);
-    $("#totalMonthlyCalculation").append("<div class='col-sm-2 text-center'</div>");
   }
   
   // Generate the Plot
@@ -330,24 +316,13 @@ function CalculateAdditionalMonthlyPayment(startingBalance, monthlyPayment, inte
   var totalInterest = 0;
   for (var key in amortizationTable)
   {
-    var rowArr = amortizationTable[key];
+    var amortizationRow = amortizationTable[key];
     
-    for (var x = 0; x < rowArr.length; x++)
-    {
-      // First column is the Month in "MMMM yyyy" format, so no parsing required.
-      if (x == 0)
-      {
-        debtFreeDate = rowArr[x];
-      }
-      else
-      {
-        // Check for interest column to sum up the interest paid.
-        if (x == 3)
-        {
-          totalInterest += rowArr[x]
-        }
-      }
-    }
+    // Get the Month, this will end up being the DebtFreeDate
+    debtFreeDate = amortizationRow["Month"];
+    
+    // Also get the Interest and sum it up.
+    totalInterest += amortizationRow["InterestPaid"];
   }
   
   var totalMonthlyObj = {};
@@ -366,60 +341,69 @@ function CalculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
   var resultsObj = {};
   
   /*
-      ResultsObj {
-        Month1: {1000, 100, 20, 80, 920}
-        ...
-        MonthN: {10, 10, 0, 10, 0}
+    Results Object looks like this, contains various fields we'll need for
+    calculating interest:
+      ResultsObj: {
+        Month1: {
+          "Month": "March 2018"
+          "StartingBalance": 1000, 
+          "Repayment": 100, 
+          "InterestPaid": 20, 
+          "PrincipalPaid": 80, 
+          "NewBalance": 920
+        }
+        Month2: {
+          ...
+        }
+        Month3: {
+          ...
+        }
       }
-  
-      ResultsObject is an object with rows of lists
-      Each list has the following:
-            [0]     ,     [1]        ,    [2]   ,     [3]     ,      [4]     ,    [5]
-      [Month #Number, StartingBalance, Repayment, InterestPaid, PrincipalPaid, NewBalance]
   */
   
   // Calculate Interest until the loan is paid off.
   while (newBalance > 0)
   {
-    var singleResult = [];
+    var singleResult = {};
     
     // Using datejs, url: http://www.datejs.com/
     // Can tweak this using standard DateTime formats: https://github.com/datejs/Datejs
-    singleResult.push(Date.today().add(monthCount).months().toString('MMMM yyyy'));
+    singleResult["Month"] = Date.today().add(monthCount).months().toString('MMMM yyyy');
     
     // "Starting Balance" is the old newBalance
     var startingBalance = newBalance;
-    singleResult.push(startingBalance);    
+    singleResult["StartingBalance"] = startingBalance;    
     
     // Monthly Payment edge case: if StartingBalance is less than monthlyPayment,
     // then startingBalance is all we will pay. Since we can't pay more than
     // the actual principal amount obviously.
     if (parseFloat(startingBalance) < parseFloat(monthlyPayment))
     {
-      singleResult.push(startingBalance);
+      singleResult["Repayment"] = startingBalance;
     }
     else
     {
-      singleResult.push(monthlyPayment);
+      singleResult["Repayment"] = monthlyPayment;
     }
     
     // Math taken from here
     // https://mozo.com.au/interest-rates/guides/calculate-interest-on-loan
     currentInterest = CalculateMonthlyInterest(startingBalance, interestRate);
-    principalPaid = monthlyPayment - currentInterest;
+    currentPrincipal = monthlyPayment - currentInterest;
     newBalance = newBalance - (monthlyPayment - currentInterest);
     
-    singleResult.push(currentInterest);
-    singleResult.push(principalPaid);
+    singleResult["InterestPaid"] = currentInterest;
+    singleResult["PrincipalPaid"] = currentPrincipal;
     
     // New Balance edge case: can't be less than 0, if it's negative, make it 0.
+    // This only happens on the last run through the loop.
     if (newBalance < 0)
     {
-      singleResult.push(0);
+      singleResult["NewBalance"] = 0;
     }
     else
     {
-      singleResult.push(newBalance);
+      singleResult["NewBalance"] = newBalance;
     }
     
     // Add a row into the results object
