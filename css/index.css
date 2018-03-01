@@ -113,3 +113,9 @@ body {
   height:30rem;
   overflow: auto;
 }
+
+/* Make the GitHub icon black like it should be (disable hyperlink blue color) */
+#githubIcon {
+  color: black;
+  font-size: 1.25rem;
+}
