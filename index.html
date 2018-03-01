@@ -111,7 +111,7 @@
 
                 This can also be used to compare how much quicker a loan will
                 be paid off if you pay higher than the minimum.  -->
-            <label for="totalMonthlyPayment">Larger Monthly Payment <span id="monthlyPaymentInfo"><i class="fas fa-info-circle"></i></span></label>
+            <label for="totalMonthlyPayment">Larger Payment &nbsp<span id="monthlyPaymentInfo"><i class="fas fa-info-circle"></i></span></label>
             <input type="text" class="form-control" id="totalMonthlyPayment" placeholder="$0">
           </div>
           <div class="col-6 col-sm-8 text-right align-self-center">
@@ -132,40 +132,30 @@
         </div>
       </div>
       
-      <div class="row" id="totalMonthlyCalculation"></div>
+      <div class="row" id="additionalMonthlyCalculation"></div>
       
       <!-- Testing Tabs
            Bootstrap gives us this through bootstrap.js, so woot.
            https://getbootstrap.com/docs/4.0/components/navs/#javascript-behavior -->
-      <ul class="nav nav-pills mb-3 nav-justified" id="pills-tab" role="tablist">
+      <ul class="nav nav-pills mb-3 nav-fill" id="pills-tab" role="tablist">
         <li class="nav-item">
-          <a class="nav-link active" id="pills-plotly-tab" data-toggle="pill" href="#pills-plotly" role="tab" aria-controls="pills-plotly" aria-selected="true">Interest Over Time Graph</a>
+          <a class="nav-link active" id="pills-amortization-tab" data-toggle="pill" href="#pills-amortization" role="tab" aria-controls="pills-amortization" aria-selected="false">Amortization Table</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="pills-amortization-tab" data-toggle="pill" href="#pills-amortization" role="tab" aria-controls="pills-amortization" aria-selected="false">Amortization Table</a>
+          <a class="nav-link" id="pills-plotly-tab" data-toggle="pill" href="#pills-plotly" role="tab" aria-controls="pills-plotly" aria-selected="true">Interest Over Time Graph</a>
         </li>
-        <!--
         <li class="nav-item">
-          <a class="nav-link" id="pills-more-tab" data-toggle="pill" href="#pills-more" role="tab" aria-controls="pills-more" aria-selected="false">More Tabs</a>
-        </li>-->
+          <a class="nav-link" id="pills-vs-tab" data-toggle="pill" href="#pills-vs" role="tab" aria-controls="pills-vs" aria-selected="false">Minimum VS Larger Payment</a>
+        </li>
       </ul>
       <div class="tab-content" id="pills-tabContent">
       
-        <!-- Plotly.js graph will go here -->
-        <div class="tab-pane fade show active" id="pills-plotly" role="tabpanel" aria-labelledby="pills-plotly-tab">
-          <div class="row">
-            <div class="col-sm-12">
-              <div id="plotlyGraph"></div>
-            </div>
-          </div>
-        </div>
-        
         <!-- Amortization Table goes here, shows the Balance, Interest Paid and 
            Principal Paid over time. Using the responsive table class for auto
            resizing the table on mobile.
            ALSO: FOLLOW THE DOCS! table-responsive goes on the parent div to 
            the table!! -->
-        <div class="tab-pane fade" id="pills-amortization" role="tabpanel" aria-labelledby="pills-amortization-tab">
+        <div class="tab-pane fade show active" id="pills-amortization" role="tabpanel" aria-labelledby="pills-amortization-tab">
           <div class="row" id="tableRow">
             <div class='col-sm-12 text-center'>
               <p class='totalMonthlyNote'>Amortization Table</p>
@@ -179,12 +169,32 @@
                     <th scope="col">Repayment</th>
                     <th scope="col">Interest Paid</th>
                     <th scope="col">Principal Paid</th>
+                    <th scope="col">Total Interest Paid</th>
                     <th scope="col">New Balance</th>
                   </tr>
                 </thead>
                 <tbody id="loanCalculationOutput">
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      
+        <!-- Plotly.js graph will go here -->
+        <div class="tab-pane fade" id="pills-plotly" role="tabpanel" aria-labelledby="pills-plotly-tab">
+          <div class="row">
+            <div class="col-sm-12">
+              <div id="plotlyGraph"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- If a larger monthly payment is entered, interest from paying the minimum
+             will be compared against interest from paying the larger monthly payment. -->
+        <div class="tab-pane fade" id="pills-vs" role="tabpanel" aria-labelledby="pills-vs-tab">
+          <div class="row">
+            <div class="col-sm-12">
+              <div id="vsGraph"></div>
             </div>
           </div>
         </div>

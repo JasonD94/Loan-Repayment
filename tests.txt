@@ -10,7 +10,8 @@ ResultsObj: {
     "StartingBalance": 1000, 
     "Repayment": 100, 
     "InterestPaid": 3.3333333333333335, 
-    "PrincipalPaid": 96.66666666666667, 
+    "PrincipalPaid": 96.66666666666667,
+    "TotalInterestPaid": 3.3333333333333335,
     "NewBalance": 903.3333333333334
   }
 }
@@ -23,3 +24,16 @@ CalculateAdditionalMonthlyPayment(1000, 100, 4) =>
 
 GeneratePlotlyPlots() => ?
 GenerateAmortizationTable() => ?
+
+
+Hide a tab:
+$('#pills-vs-tab').hide();
+Show a tab:
+$('#pills-vs-tab').show();
+
+$('#pills-vs-tab').removeClass('show');
+$('#pills-vs-tab').addClass('hide');
+
+Show a tab:
+$('#pills-vs-tab').removeClass('hide');
+$('#pills-vs-tab').tab('show');

@@ -54,6 +54,7 @@ $(document).ready(function () {
   // https://plot.ly/javascript/responsive-fluid-layout/#responsive-/-fluid-layout
   window.onresize = function() {
       Plotly.Plots.resize('plotlyGraph');
+      Plotly.Plots.resize('vsGraph');
   };
 });
 
@@ -81,8 +82,9 @@ function ClearTable() {
   $("#loanCalculationOutput").empty();
   $("#debtFreeDate").empty();
   $("#totalInterestPaid").empty();
-  $("#totalMonthlyCalculation").empty();
+  $("#additionalMonthlyCalculation").empty();
   $('#plotlyGraph').empty();
+  $('#vsGraph').tab('hide');
 }
 
 // Calculate Button calls into this function
@@ -117,7 +119,7 @@ function OnCalculate() {
   $("#debtFreeDate").empty();
   $("#totalInterestPaid").empty();
   
-  var totalMonthlyCalculation;
+  var additionalMonthlyCalculation;
   
   /*
       Calculates total interest paid, and debt paid off date
@@ -132,14 +134,15 @@ function OnCalculate() {
   var balanceArr = [];
   var interestArr = [];
   var principalArr = [];
+  var totalInterestArr = [];
   
   // Generate each month's row
   for (var key in amortizationTable)
   {
-    // Check for TotalMonthlyCalculation, so we can set that separately.
-    if (key == "TotalMonthlyCalculation")
+    // Check for AdditionalMonthlyCalculation, so we can set that separately.
+    if (key == "AdditionalMonthlyCalculation")
     {
-      totalMonthlyCalculation = amortizationTable["TotalMonthlyCalculation"]
+      additionalMonthlyCalculation = amortizationTable["AdditionalMonthlyCalculation"]
       break;
     }
     
@@ -160,11 +163,13 @@ function OnCalculate() {
     tr.append("<td>" + parseFloat(amortizationRow["Repayment"]).toFixed(2) + "</td>");
     tr.append("<td>" + parseFloat(amortizationRow["InterestPaid"]).toFixed(2) + "</td>");
     tr.append("<td>" + parseFloat(amortizationRow["PrincipalPaid"]).toFixed(2) + "</td>");
+    tr.append("<td>" + parseFloat(amortizationRow["TotalInterestPaid"]).toFixed(2) + "</td>");
     tr.append("<td>" + parseFloat(amortizationRow["NewBalance"]).toFixed(2) + "</td>");
 
-    // Sum up the interest paid.
-    totalInterest += amortizationRow["InterestPaid"];
+    // Interest values to display and plot.
     interestArr.push(amortizationRow["InterestPaid"]);
+    totalInterestArr.push(amortizationRow["TotalInterestPaid"]);
+    totalInterest = amortizationRow["TotalInterestPaid"];
 
     // We also want the Principal Paid and New Balance to plot them
     principalArr.push(amortizationRow["PrincipalPaid"]);
@@ -177,32 +182,35 @@ function OnCalculate() {
   
   // If total monthly calculation was ran, we can set the comparision Debt Free
   // and Interest rate.
-  if (totalMonthlyCalculation)
+  if (additionalMonthlyCalculation)
   {
     // Information message to let the user know these dates/interest amounts are
     // IF they paid the "Total Monthly Payment" amount.
     var totalMonthlyNote = "<div class='col-sm-12 text-center'><p class='totalMonthlyNote'>Paying the <span class='textItalics'>Total Monthly Payment</span></p></div>";
     
-    // Create the comparision div's we need to append to the totalMonthlyCalculation div
-    var debtFreeDate = totalMonthlyCalculation["DebtFreeDate"];
+    // Create the comparision div's we need to append to the additionalMonthlyCalculation div
+    var debtFreeDate = additionalMonthlyCalculation["DebtFreeDate"];
     var debtFreeDiv = "<div class='col-sm-6 text-center'><p class='bordersDebtAlt'>DEBT FREE BY: <span class='debtFreeDateClass'>" + debtFreeDate + "</span></p></div>";
     
     // Make sure to parse the Interest Amount as a float, just like the other interest calculations!
-    var interestAmount = parseFloat(totalMonthlyCalculation["InterestAmount"]).toFixed(2);
+    var interestAmount = parseFloat(additionalMonthlyCalculation["InterestAmount"]).toFixed(2);
     var interestAmountDiv = "<div class='col-sm-6 text-center'><p class='bordersInterestAlt'>TOTAL INTEREST PAID: <span class='totalInterestPaidClass'>$" + interestAmount + "</span></p></div>";
     
-    $("#totalMonthlyCalculation").empty();
-    $("#totalMonthlyCalculation").append(totalMonthlyNote);
-    $("#totalMonthlyCalculation").append(debtFreeDiv);
-    $("#totalMonthlyCalculation").append(interestAmountDiv);
+    $("#additionalMonthlyCalculation").empty();
+    $("#additionalMonthlyCalculation").append(totalMonthlyNote);
+    $("#additionalMonthlyCalculation").append(debtFreeDiv);
+    $("#additionalMonthlyCalculation").append(interestAmountDiv);
+    
+    // Also, plot the Minimum payment interest vs the Larger payment interest
+    GenerateMinVsLargerPlot(monthsArr, totalInterestArr, additionalMonthlyCalculation["InterestArray"]);
   }
   
   // Generate the Plot
-  GeneratePlotlyPlots(monthsArr, interestArr, principalArr);
+  GenerateInterestOverTimePlot(monthsArr, interestArr, principalArr);
 }
 
-// Given an X and Y axis, this function generates the Plotly.js viz
-function GeneratePlotlyPlots(monthsArr, interestArr, principalArr) 
+// Plots interest paid vs principal paid (y-axis) over time (x axis)
+function GenerateInterestOverTimePlot(monthsArr, interestArr, principalArr) 
 {
   // Plotly.js graphs
   var interestPlot = {
@@ -240,6 +248,47 @@ function GeneratePlotlyPlots(monthsArr, interestArr, principalArr)
   };
   
   Plotly.newPlot('plotlyGraph', data, layout, {displayModeBar: false});
+}
+
+// Plots Minimum Interest paid vs Larger Interest (y-axis) paid over time (x-axis)
+function GenerateMinVsLargerPlot(monthsArr, minInterestArr, largerInterestArr)
+{
+  // Plotly.js graphs
+  var minInterestPlot = {
+    x: monthsArr,
+    y: minInterestArr,
+    name: 'Minimum Payment',
+    type: 'scatter'
+  };
+  var largerInterestPlot = {
+    x: monthsArr,
+    y: largerInterestArr,
+    name: 'Larger Payment',
+    type: 'scatter'
+  };
+  var data = [ minInterestPlot, largerInterestPlot ];
+  var layout = {
+    title: '<b>Minimum Monthly Payment Interest Paid vs <br>Larger Monthly Interest Paid on the Loan Over Time</b>',
+    "titlefont": {
+    "size": 16,
+    },
+    margin: {
+      l: 50,
+      r: 50,
+      b: 100,
+      t: 100,
+      pad: 5
+    },
+    xaxis: {
+      title: 'Months'
+    },
+    yaxis: {
+      title: 'Interest'
+    },
+    autosize: true
+  };
+  
+  Plotly.newPlot('vsGraph', data, layout, {displayModeBar: false});
 }
 
 // Grab the UI fields, check if they exist, and then run the CalculateTotalInterest
@@ -298,8 +347,8 @@ function GenerateAmortizationTable() {
   // But, pull out the Debt Free Date and Interest amount, since we just want those for comparision.
   if (parseFloat(totalMonthlyPayment) > 0)
   {
-    var totalMonthlyCalculation = CalculateAdditionalMonthlyPayment(startingBalance, totalMonthlyPayment, interestRate);
-    amortizationTable["TotalMonthlyCalculation"] = totalMonthlyCalculation;
+    var additionalMonthlyCalculation = CalculateAdditionalMonthlyPayment(startingBalance, totalMonthlyPayment, interestRate);
+    amortizationTable["AdditionalMonthlyCalculation"] = additionalMonthlyCalculation;
   }
   
   return amortizationTable;
@@ -314,6 +363,10 @@ function CalculateAdditionalMonthlyPayment(startingBalance, monthlyPayment, inte
   // Calculate Debt Free Date and Interest Paid
   var debtFreeDate;
   var totalInterest = 0;
+  
+  // Interest Array for comparing to Minimum monthly payment.
+  var interestArr = [];
+  
   for (var key in amortizationTable)
   {
     var amortizationRow = amortizationTable[key];
@@ -323,11 +376,15 @@ function CalculateAdditionalMonthlyPayment(startingBalance, monthlyPayment, inte
     
     // Also get the Interest and sum it up.
     totalInterest += amortizationRow["InterestPaid"];
+    
+    // Add to the interest Array
+    interestArr.push(totalInterest);
   }
   
   var totalMonthlyObj = {};
   totalMonthlyObj["DebtFreeDate"] = debtFreeDate;
   totalMonthlyObj["InterestAmount"] = totalInterest;
+  totalMonthlyObj["InterestArray"] = interestArr;
   return totalMonthlyObj;
 }
 
@@ -339,18 +396,22 @@ function CalculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
   
   // JSON results object for displaying in a table
   var resultsObj = {};
+  var totalInterest = 0;
   
   /*
     Results Object looks like this, contains various fields we'll need for
     calculating interest:
       ResultsObj: {
-        Month1: {
-          "Month": "March 2018"
-          "StartingBalance": 1000, 
-          "Repayment": 100, 
-          "InterestPaid": 20, 
-          "PrincipalPaid": 80, 
-          "NewBalance": 920
+        ResultsObj: {
+          Month1: {
+            "Month": "March 2018"
+            "StartingBalance": 1000, 
+            "Repayment": 100, 
+            "InterestPaid": 3.3333333333333335, 
+            "PrincipalPaid": 96.66666666666667,
+            "TotalInterestPaid": 3.3333333333333335,       
+            "NewBalance": 903.3333333333334
+          }
         }
         Month2: {
           ...
@@ -394,6 +455,10 @@ function CalculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
     
     singleResult["InterestPaid"] = currentInterest;
     singleResult["PrincipalPaid"] = currentPrincipal;
+    
+    // Sum up InterestPaid over time for the Min Vs Larger payment plot
+    totalInterest += currentInterest; 
+    singleResult["TotalInterestPaid"] = totalInterest;
     
     // New Balance edge case: can't be less than 0, if it's negative, make it 0.
     // This only happens on the last run through the loop.
