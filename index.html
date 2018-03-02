@@ -55,10 +55,11 @@
       
       <!-- User inputs a loan(s) -->
       <form id="loanForms">
-        <div class="form-row">
+        <!-- Loan 1 -->
+        <div class="form-row loanFormRow" id="loanRow1">
           <div class="col-sm-6 col-md text-center">
             <label for="loanName1">Loan Name</label>
-            <input type="text" class="form-control" id="loanName1" placeholder="Loan 0">
+            <input type="text" class="form-control" id="loanName1" placeholder="Loan 1">
           </div>
           <div class="col-sm-6 col-md text-center">
             <label for="balance1">Current Balance</label>
@@ -78,6 +79,39 @@
             <button type="button" class="btn btn-secondary" id="clearInputs">X</button>
           </div>
         </div>
+        
+        <!-- Additional loans get appended here -->
+        
+        <!-- Testing having a second loan to calculate
+             Commented out for now until I determine how to handle multiple loans. -->
+        <!--
+        <div class="form-row loanFormRow" id="loanRow2">
+          <div class="col-sm-6 col-md text-center">
+            <label for="loanName2">Loan Name</label>
+            <input type="text" class="form-control" id="loanName2" placeholder="Loan 2">
+          </div>
+          <div class="col-sm-6 col-md text-center">
+            <label for="balance2">Current Balance</label>
+            <input type="text" class="form-control" id="balance2" placeholder="$0">
+          </div>
+          <div class="col-sm-6 col-md text-center">
+            <label for="minimumPayment2">Minimum Payment</label>
+            <input type="text" class="form-control" id="minimumPayment2" placeholder="$0">
+          </div>
+          <div class="col-sm-6 col-md text-center">
+            <label for="interestRate2">Interest Rate</label>
+            <input type="text" class="form-control" id="interestRate2" placeholder="0%">
+          </div>
+        -->
+          <!-- This was tricky, not used to Bootstrap 4. 
+          https://stackoverflow.com/questions/42252443/vertical-align-center-in-bootstrap-4 -->
+        <!--
+          <div class="col-12 col-md-1 text-right align-self-center">
+            <button type="button" class="btn btn-secondary" id="clearInputs">X</button>
+          </div>
+        </div>
+        -->
+        
       </form>
       
       <form id="monthlyPaymentForm">

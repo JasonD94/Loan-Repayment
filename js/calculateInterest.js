@@ -9,6 +9,27 @@
     This JS file contains loan interest calculation functions
 */
 
+// Global Array of Objects to hold all of our loan data
+// This would look something like:
+/*
+    _Loans [
+      {
+        LoanName: Loan1
+        CurrentBalance: $1000
+        MinimumPayment: $100
+        InterestRate: 4.85
+      }
+      {
+        LoanName: Loan2
+        CurrentBalance: $2000
+        MinimumPayment: $250
+        InterestRate: 9.05
+      }
+      etc
+    ]
+*/
+var _Loans = [];
+
 // Wrapping the click listener in a ready so that the DOM will be all loaded
 // when this fires up.
 $(document).ready(function () {

@@ -113,6 +113,10 @@ body {
   margin-top: 1.5rem;
 }
 
+.loanFormRow {
+  margin-top: 0.5rem;
+}
+
 /* Also do not want to scroll through months of payment rows, so make it scrollable!
    Table elements don't support this natively, but this helpful CSS does it for us. :)
    https://stackoverflow.com/questions/10420168/twitter-bootstrap-scrollable-table
