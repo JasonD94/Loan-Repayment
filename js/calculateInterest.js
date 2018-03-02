@@ -61,11 +61,12 @@ $(document).ready(function () {
 // Information on the "Total Monthly Payment" fields
 function TotalMonthlyPaymentInformation() {
   swal({
-      html: true,
-      icon: "info",
-      title: "What this field is",
-      text: "This field is a monthly payment that is greater than the minimum payment that you would like to compare against for Payoff Date and Total Interest Paid. \n For example, if your minimum monthly payment was $100, you could enter $200 in this feild to see how much quicker you'd pay off the loan, and how much money you would \
-      save in interest."
+      title: "What is this field?",
+      html: "This is a monthly payment that is greater than the minimum payment \
+      that you would like to compare against. <br> For example, if your minimum \
+      payment was $100, you could enter $200 in this field to see how much \
+      quicker you'd pay off the loan, and how much money you would save.",
+      type: "question"
     });
 }
 
@@ -96,13 +97,13 @@ function OnCalculate() {
   if ( parseFloat(amortizationTable) == -1 )
   {
     swal({
-      icon: "error",
-      text: "This payment plan looks to be unreasonable. I tried calculating interest \
-      on this debt up to the year 2100, and I was unable to pay off the loan. \n \
-      You likely need to increase the amount you are paying on the loan if at all possible. \
-      Other  options include: \n \
-      - adjusting your repayment plan \n \
-      - seeking forgiveness on the loan \n \
+      type: "error",
+      html: "This payment plan looks to be unreasonable. I tried calculating interest \
+      on this debt up to the <b>year 2100</b>, and I was unable to pay off the loan. <br> \
+      You need to increase the monthly amount you are paying on the loan if at all possible. \
+      Other  options include: <br> \
+      - adjusting your repayment plan <br> \
+      - seeking forgiveness on the loan <br> \
       - contributing more per month whenever possible."
     });
     
@@ -305,7 +306,7 @@ function GenerateAmortizationTable() {
   {
     // For Sweet Alerts Docs: https://sweetalert2.github.io/
     swal({
-      icon: "warning",
+      type: "warning",
       text: "Looks like you forgot to include a Starting Balance. 😢"
     });
     
@@ -314,7 +315,7 @@ function GenerateAmortizationTable() {
   if (!monthlyPayment)
   {
     swal({
-      icon: "warning",
+      type: "warning",
       text: "Looks like you forgot to include a Monthly Payment. 😢"
     });
     
@@ -323,7 +324,7 @@ function GenerateAmortizationTable() {
   if (!interestRate)
   {
     swal({
-      icon: "warning",
+      type: "warning",
       text: "Looks like you forgot to include an Interest Rate. 😢"
     });
     
@@ -333,7 +334,7 @@ function GenerateAmortizationTable() {
   {
     // For Sweet Alerts Docs: https://sweetalert.js.org/docs/
     swal({
-      icon: "error",
+      type: "error",
       text: "Total Monthly Payment cannot be less than Monthly Payment"
     });
     
