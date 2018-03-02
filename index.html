@@ -56,46 +56,33 @@
       <!-- User inputs a loan(s) -->
       <form id="loanForms">
         <div class="form-row">
-          <!--
-          <div class="col-6 col-sm-3 text-center">
+          <div class="col-sm-6 col-md text-center">
             <label for="loanName1">Loan Name</label>
             <input type="text" class="form-control" id="loanName1" placeholder="Loan 0">
           </div>
-          -->
-          <div class="col-6 col-sm-4 text-center">
+          <div class="col-sm-6 col-md text-center">
             <label for="balance1">Current Balance</label>
             <input type="text" class="form-control" id="balance1" placeholder="$0">
           </div>
-          <div class="col-6 col-sm-4 text-center">
+          <div class="col-sm-6 col-md text-center">
             <label for="minimumPayment1">Minimum Payment</label>
             <input type="text" class="form-control" id="minimumPayment1" placeholder="$0">
           </div>
-          <div class="col-6 col-sm-3 text-center">
+          <div class="col-sm-6 col-md text-center">
             <label for="interestRate1">Interest Rate</label>
             <input type="text" class="form-control" id="interestRate1" placeholder="0%">
           </div>
           <!-- This was tricky, not used to Bootstrap 4. 
           https://stackoverflow.com/questions/42252443/vertical-align-center-in-bootstrap-4 -->
-          <div class="col-6 col-sm-1 text-right align-self-center">
+          <div class="col-12 col-md-1 text-right align-self-center">
             <button type="button" class="btn btn-secondary" id="clearInputs">X</button>
           </div>
         </div>
-        <br>
-        <!-- TODO: Support adding additional loans to calculate all interest
-             TODO: Once that's supported, calculate paying off the highest--
-                   interest loan first vs paying the lowest principal loan first. -->
-        <!--
-        <div class="row">
-          <div class="col-sm-3 text-center">
-            <button class="btn btn-primary" id="addLoan">Add Loan</button>
-          </div>
-        </div>
-        -->
       </form>
       
       <form id="monthlyPaymentForm">
         <div class="form-row">
-          <div class="col-6 col-sm-4 text-center">
+          <div class="col text-center">
             <!-- Once more than one loan is supported, this will be the
                  total amount that you can afford to pay towards all loans.
                  It will need to be at least the sum of all loans combined. 
@@ -108,7 +95,13 @@
             <label for="totalMonthlyPayment">Larger Payment &nbsp<span id="monthlyPaymentInfo"><i class="fas fa-info-circle"></i></span></label>
             <input type="text" class="form-control" id="totalMonthlyPayment" placeholder="$0">
           </div>
-          <div class="col-6 col-sm-8 text-right align-self-center">
+          <!-- Adds a row of inputs for inputting additional loans. -->
+          <div class="col text-right align-self-center">
+            <button type="button" class="btn btn-primary" id="addLoan">Add Loan</button>
+          </div>
+        </div>
+        <div class="form-row" id="calculateBtnRow">
+          <div class="col text-right align-self-center">
             <button type="button" class="btn btn-primary" id="calculateBtn">Calculate Interest</button>
           </div>
         </div>

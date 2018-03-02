@@ -97,7 +97,15 @@ body {
 #minimumPaymentRow {
   margin-top: 1.5rem;
 }
-
+#monthlyPaymentForm {
+  margin-top: 0.5rem;
+}
+#clearInputs {
+  margin-top: 0.5rem;
+}
+#calculateBtnRow {
+  margin-top: 0.5rem;
+}
 #tableRow {
   margin-top: 1.5rem;
 }
