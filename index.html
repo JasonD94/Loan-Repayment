@@ -53,103 +53,81 @@
         debt and become financially independent.</p>
       </div>
       
-      <!-- User inputs a loan(s) -->
-      <form id="loanForms">
-        <!-- Loan 1 -->
-        <div class="form-row loanFormRow" id="loanRow1">
+      <!-- User inputs info about his/her loan(s) - this is also the div Vue works off of -->
+      <div id="loanInputs">
+        <div class="row loanFormRow" v-for="(loan, index) in loans">
           <div class="col-sm-6 col-md text-center">
             <label for="loanName1">Loan Name</label>
-            <input type="text" class="form-control" id="loanName1" placeholder="Loan 1">
+            <input type="text" class="form-control" v-model="loan.name" placeholder="Loan 1">
           </div>
           <div class="col-sm-6 col-md text-center">
             <label for="balance1">Current Balance</label>
-            <input type="text" class="form-control" id="balance1" placeholder="$0">
+            <input type="text" class="form-control" v-model="loan.balance" placeholder="$0">
           </div>
           <div class="col-sm-6 col-md text-center">
             <label for="minimumPayment1">Minimum Payment</label>
-            <input type="text" class="form-control" id="minimumPayment1" placeholder="$0">
+            <input type="text" class="form-control" v-model="loan.minimumPayment" placeholder="$0">
           </div>
           <div class="col-sm-6 col-md text-center">
             <label for="interestRate1">Interest Rate</label>
-            <input type="text" class="form-control" id="interestRate1" placeholder="0%">
+            <input type="text" class="form-control" v-model="loan.interestRate" placeholder="0%">
           </div>
-          <!-- This was tricky, not used to Bootstrap 4. 
-          https://stackoverflow.com/questions/42252443/vertical-align-center-in-bootstrap-4 -->
-          <div class="col-12 col-md-1 text-right align-self-center">
-            <button type="button" class="btn btn-secondary" id="clearInputs">X</button>
+          <div class="col-12 col-md-1 text-right align-self-end">
+            <button type="button" class="btn btn-secondary" @click="removeLoan(index)">X</button>
           </div>
         </div>
         
-        <!-- Additional loans get appended here -->
-        
-        <!-- Testing having a second loan to calculate
-             Commented out for now until I determine how to handle multiple loans. -->
+        <!-- Total balance, Minimum Payment and Average Interest Rate across ALL Loans -->
         <!--
-        <div class="form-row loanFormRow" id="loanRow2">
-          <div class="col-sm-6 col-md text-center">
-            <label for="loanName2">Loan Name</label>
-            <input type="text" class="form-control" id="loanName2" placeholder="Loan 2">
-          </div>
-          <div class="col-sm-6 col-md text-center">
-            <label for="balance2">Current Balance</label>
-            <input type="text" class="form-control" id="balance2" placeholder="$0">
-          </div>
-          <div class="col-sm-6 col-md text-center">
-            <label for="minimumPayment2">Minimum Payment</label>
-            <input type="text" class="form-control" id="minimumPayment2" placeholder="$0">
-          </div>
-          <div class="col-sm-6 col-md text-center">
-            <label for="interestRate2">Interest Rate</label>
-            <input type="text" class="form-control" id="interestRate2" placeholder="0%">
-          </div>
-        -->
-          <!-- This was tricky, not used to Bootstrap 4. 
-          https://stackoverflow.com/questions/42252443/vertical-align-center-in-bootstrap-4 -->
-        <!--
-          <div class="col-12 col-md-1 text-right align-self-center">
-            <button type="button" class="btn btn-secondary" id="clearInputs">X</button>
-          </div>
+        <div class="row loanFormRow">
+          <div class="col-sm-6 col-md text-center"></div>
+          <div class="col-sm-6 col-md text-center bordersComputed">Total Balance</div>
+          <div class="col-sm-6 col-md text-center bordersComputed">Total Payment</div>
+          <div class="col-sm-6 col-md text-center bordersComputed">Average Interest Rate</div>
+          <div class="col-12 col-md-1 text-right align-self-end"></div>
+        </div>
+        <div class="row loanFormRow">
+          <div class="col-sm-6 col-md text-center"></div>
+          <div class="col-sm-6 col-md text-center">{{ totalBalance }}</div>
+          <div class="col-sm-6 col-md text-center">{{ totalPayments }}</div>
+          <div class="col-sm-6 col-md text-center">{{ avgInterestRate }}</div>
+          <div class="col-12 col-md-1 text-right align-self-end"></div>
         </div>
         -->
         
-      </form>
-      
-      <form id="monthlyPaymentForm">
-        <div class="form-row">
+        <!-- Total monthly payment -->
+        <div class="row" id="monthlyPaymentForm">
           <div class="col text-center">
-            <!-- Once more than one loan is supported, this will be the
-                 total amount that you can afford to pay towards all loans.
-                 It will need to be at least the sum of all loans combined. 
-                 Ideally this would be $50+ above the total minimums and 
-                 then we'd calculate how much quicker the loan will be paid
-                 off by doing that and how much interest will be saved too.
-
-                This can also be used to compare how much quicker a loan will
-                be paid off if you pay higher than the minimum.  -->
-            <label for="totalMonthlyPayment">Larger Payment &nbsp<span id="monthlyPaymentInfo"><i class="fas fa-info-circle"></i></span></label>
-            <input type="text" class="form-control" id="totalMonthlyPayment" placeholder="$0">
+            <label for="totalMonthlyPayment">Larger Payment &nbsp
+              <!-- Note, on click I make a popup. On moose over I style this icon red, to give a
+                   visual cue to the user that you can click on this icon for more information. -->
+              <span @click="largerPaymentInfo" @mouseover="isHover = true" @mouseleave="isHover = false"
+                    v-bind:class="{ infoIconPrimary: isHover }">
+                <i class="fas fa-info-circle"></i>
+              </span>
+            </label>
+            <input type="text" class="form-control" placeholder="$0">
           </div>
-          <!-- Adds a row of inputs for inputting additional loans. -->
-          <div class="col text-right align-self-center">
-            <button type="button" class="btn btn-primary" id="addLoan">Add Loan</button>
+          <div class="col text-right align-self-end">
+            <button type="button" class="btn btn-primary" @click="addLoan">Add Loan</button>
           </div>
         </div>
-        <div class="form-row" id="calculateBtnRow">
-          <div class="col text-right align-self-center">
-            <button type="button" class="btn btn-primary" id="calculateBtn">Calculate Interest</button>
+        <div class="row" id="calculateBtnRow">
+          <div class="col text-right align-self-end">
+            <button type="button" class="btn btn-primary" @click="calculateInterest">Calculate Interest</button>
           </div>
         </div>
-      </form>
-      
-      <div class="row" id="minimumPaymentRow">
-        <div class='col-sm-12 text-center'>
-          <p class='totalMonthlyNote'>Paying the <span class="textUnderline">MINIMUM</span> Monthly Payment</p>
-        </div>
-        <div class="col-sm-6 text-center">
-          <p class="bordersDebt">DEBT FREE BY: <span id="debtFreeDate"></span></p>
-        </div>
-        <div class="col-sm-6 text-center">
-          <p class="bordersInterest">TOTAL INTEREST PAID: <span id="totalInterestPaid"></span></p>
+        
+        <div class="row" id="minimumPaymentRow">
+          <div class='col-sm-12 text-center'>
+            <p class='totalMonthlyNote'>Paying the <span class="textUnderline">MINIMUM</span> Monthly Payment</p>
+          </div>
+          <div class="col-sm-6 text-center">
+            <p class="bordersDebt">DEBT FREE BY: <span id="debtFreeDate"></span></p>
+          </div>
+          <div class="col-sm-6 text-center">
+            <p class="bordersInterest">TOTAL INTEREST PAID: <span id="totalInterestPaid"></span></p>
+          </div>
         </div>
       </div>
       

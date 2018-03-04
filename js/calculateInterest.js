@@ -9,7 +9,7 @@
     This JS file contains loan interest calculation functions
 */
 
-// Global Array of Objects to hold all of our loan data
+// Array of Objects to hold all of our loan data
 // This would look something like:
 /*
     _Loans [
@@ -28,46 +28,97 @@
       etc
     ]
 */
-var _Loans = [];
+// This will be handled for us in VueJS, using a custom compoment of inputs,
+// and setting up some Data/Methods to control adding, removing, and inputing
+// loan data for however many loans the user adds.
+var vm = new Vue({
+  el: "#loanInputs",
+  data: {
+    loans: [],
+    isHover: false,
+    largerPayment: 0
+  },
+  computed: {
+    totalBalance: function() {
+      var total = 0;
+      // Loop over all the balances
+      for (var x = 0; x < this.loans.length; x++)
+      {
+        total += parseInt(this.loans[x].balance);
+      }
+      
+      // Check for NaN (blank input)
+      if (isNaN(total))
+      {
+        return 0;
+      }
+      
+      return total;
+    },
+    totalPayments: function() {
+      var total = 0;
+      // Loop over all the monthly payments
+      for (var x = 0; x < this.loans.length; x++)
+      {
+        total += parseInt(this.loans[x].minimumPayment);
+      }
+      
+      // Check for NaN (blank input)
+      if (isNaN(total))
+      {
+        return 0;
+      }
+      
+      return total;
+    },
+    avgInterestRate: function() {
+      var total = 0;
+      // Loop over all the monthly payments
+      for (var x = 0; x < this.loans.length; x++)
+      {
+        total += parseFloat(this.loans[x].interestRate);
+      }
+      
+      // Check for NaN (blank input)
+      if (isNaN(total))
+      {
+        return 0;
+      }
+      else if (isNaN(total / this.loans.length))
+      {
+        return 0;
+      }
+      
+      // Return the Average Interest Rate across all loans
+      return total / this.loans.length;
+    }
+  },
+  methods: {
+    addLoan: function() {
+      var elem = document.createElement('div');
+      this.loans.push({
+        name: "Loan " + (this.loans.length + 1),
+        balance: "",
+        minimumPayment: "",
+        interestRate: ""
+      });
+    },
+    removeLoan: function(index) {
+      this.loans.splice(index, 1);
+    },
+    calculateInterest: function(event, row) {
+      OnCalculate();
+    },
+    largerPaymentInfo: function() {
+      // Pop up an info alert
+      TotalMonthlyPaymentInformation();
+    }
+  }
+});
 
 // Wrapping the click listener in a ready so that the DOM will be all loaded
 // when this fires up.
 $(document).ready(function () {
-  
-  // Calculates Repayment table
-  $( "#calculateBtn" ).click(function() {
-    OnCalculate();
-    
-    // NOTE: button tags by default use Submit. I'm doing this to cancel the
-    // default, and prevent the page from refreshing. See this post for more info: 
-    // https://stackoverflow.com/questions/23420795/why-would-a-button-click-event-cause-site-to-reload-in-a-bootstrap-form
-    // Also seems like adding type="button" to the button works too in FireFox
-    event.preventDefault();
-  });
-  
-  // Based on user feedback, this feed was confusing. So, use Sweet Alerts to display
-  // some information on this feed and some background on the project itself.
-  $( "#monthlyPaymentInfo" ).click(function() {
-    TotalMonthlyPaymentInformation();
-    event.preventDefault();
-  });
-  
-  // Also, use onhover to change the "i" icon between primary and secondary color icons.
-  $( "#monthlyPaymentInfo" ).hover(
-    function() {
-      $( "#monthlyPaymentInfo" ).addClass("infoIconPrimary");    // Make Icon change color
-    },
-    function() {
-      $( "#monthlyPaymentInfo" ).removeClass("infoIconPrimary");    
-    }
-  );
-  
-  // Wipes all Loan inputs and the Amortization table
-  $( "#clearInputs" ).click(function() {
-    ClearInputs();
-    ClearTable();
-    event.preventDefault();
-  });
   
   // Resize the plotly on window size change. Plotly has a "resize" option in the 
   // layout option, but doesn't seem like it works very well compared to this.
@@ -317,40 +368,53 @@ function GenerateMinVsLargerPlot(monthsArr, minInterestArr, largerInterestArr)
 // function to generate an object that we can parse to generate an amortization table
 // for the given loan.
 function GenerateAmortizationTable() {
-  var startingBalance = $("#balance1").val();
-  var monthlyPayment = $("#minimumPayment1").val();
-  var interestRate = $("#interestRate1").val();
-  var totalMonthlyPayment = $("#totalMonthlyPayment").val();
   
-  // Empty checks
-  if (!startingBalance)
-  {
-    // For Sweet Alerts Docs: https://sweetalert2.github.io/
-    swal({
-      type: "warning",
-      text: "Looks like you forgot to include a Starting Balance. 😢"
-    });
+  // Could have more than one loan, so check all inputs and make sure they exist.
+  for (var x = 0; x < vm._data.loans.length; x++) {
+    var currLoan = vm._data.loans[x];
+    var index = x + 1;
     
-    return -2;
+    // Empty checks
+    if (!currLoan.name)
+    {
+      // For Sweet Alerts Docs: https://sweetalert2.github.io/
+      swal({
+        type: "warning",
+        text: "Looks like you forgot to include a Name for Loan " + index + " 😢"
+      });
+      
+      return -2;
+    }
+    if (!currLoan.balance)
+    {
+      // For Sweet Alerts Docs: https://sweetalert2.github.io/
+      swal({
+        type: "warning",
+        text: "Looks like you forgot to include a Starting Balance for Loan " + index + " 😢"
+      });
+      
+      return -2;
+    }
+    if (!currLoan.minimumPayment)
+    {
+      swal({
+        type: "warning",
+        text: "Looks like you forgot to include a Monthly Payment for Loan " + index + " 😢"
+      });
+      
+      return -2;
+    }
+    if (!currLoan.interestRate)
+    {
+      swal({
+        type: "warning",
+        text: "Looks like you forgot to include an Interest Rate for Loan " + index + "😢"
+      });
+      
+      return -2;
+    }
   }
-  if (!monthlyPayment)
-  {
-    swal({
-      type: "warning",
-      text: "Looks like you forgot to include a Monthly Payment. 😢"
-    });
-    
-    return -2;
-  }
-  if (!interestRate)
-  {
-    swal({
-      type: "warning",
-      text: "Looks like you forgot to include an Interest Rate. 😢"
-    });
-    
-    return -2;
-  }
+  
   if (parseFloat(totalMonthlyPayment) < parseFloat(monthlyPayment))
   {
     // For Sweet Alerts Docs: https://sweetalert.js.org/docs/

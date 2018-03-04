@@ -89,32 +89,28 @@ body {
   margin-bottom: 1rem;
 }
 
-.infoIconPrimary {
-  color: red;
-}
-
-/* Needs some space on top */
-#minimumPaymentRow {
-  margin-top: 1.5rem;
+/*  Each loan input row gets some margin added. The "Larger Monthly Payment" input
+    also needs some additional margin. Finally, provide some space between the
+    "Add Loan" button and the "Calculate Interest" button. */
+.loanFormRow {
+  margin-top: 1.0rem;
 }
 #monthlyPaymentForm {
-  margin-top: 0.5rem;
-}
-#clearInputs {
-  margin-top: 0.5rem;
+  margin-top: 1.0rem;
 }
 #calculateBtnRow {
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* Spacing between outputs */
+#minimumPaymentRow {
+  margin-top: 1.5rem;
 }
 #tableRow {
   margin-top: 1.5rem;
 }
 #pills-tab {
   margin-top: 1.5rem;
-}
-
-.loanFormRow {
-  margin-top: 0.5rem;
 }
 
 /* Also do not want to scroll through months of payment rows, so make it scrollable!
@@ -126,8 +122,19 @@ body {
   overflow: auto;
 }
 
-/* Make the GitHub icon black like it should be (disable hyperlink blue color) */
+/* Make the GitHub icon black like it should be (disable hyperlink blue color)
+   And make it red when it's hovered over. */
 #githubIcon {
   color: black;
   font-size: 1.25rem;
+}
+.infoIconPrimary {
+  color: red;
+}
+
+/* Add borders around the total balance, total payment and avg interest rate blocks */
+.bordersComputed {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000000;      /* BLACK */
 }
