@@ -78,7 +78,6 @@
         </div>
         
         <!-- Total balance, Minimum Payment and Average Interest Rate across ALL Loans -->
-        <!--
         <div class="row loanFormRow">
           <div class="col-sm-6 col-md text-center"></div>
           <div class="col-sm-6 col-md text-center bordersComputed">Total Balance</div>
@@ -93,7 +92,6 @@
           <div class="col-sm-6 col-md text-center">{{ avgInterestRate }}</div>
           <div class="col-12 col-md-1 text-right align-self-end"></div>
         </div>
-        -->
         
         <!-- Total monthly payment -->
         <div class="row" id="monthlyPaymentForm">
@@ -106,7 +104,7 @@
                 <i class="fas fa-info-circle"></i>
               </span>
             </label>
-            <input type="text" class="form-control" placeholder="$0">
+            <input type="text" class="form-control" v-model="largerPayment" placeholder="$0">
           </div>
           <div class="col text-right align-self-end">
             <button type="button" class="btn btn-primary" @click="addLoan">Add Loan</button>
@@ -129,7 +127,7 @@
             <p class="bordersInterest">TOTAL INTEREST PAID: <span id="totalInterestPaid"></span></p>
           </div>
         </div>
-      </div>
+      </div>  <!-- End of VueJS Div -->
       
       <div class="row" id="additionalMonthlyCalculation"></div>
       

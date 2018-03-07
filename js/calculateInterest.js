@@ -36,7 +36,7 @@ var vm = new Vue({
   data: {
     loans: [],
     isHover: false,
-    largerPayment: 0
+    largerPayment: null
   },
   computed: {
     totalBalance: function() {
@@ -369,9 +369,13 @@ function GenerateMinVsLargerPlot(monthsArr, minInterestArr, largerInterestArr)
 // for the given loan.
 function GenerateAmortizationTable() {
   
+  // Make a copy of the Loan Data without bindings to the user input, so we 
+  // do not mess up the ability to add/remove loans!
+  var loanData = [];
+  
   // Could have more than one loan, so check all inputs and make sure they exist.
   for (var x = 0; x < vm._data.loans.length; x++) {
-    var currLoan = vm._data.loans[x];
+    var currLoan = vm._data.loans[x];   // Current Loan Object to check properties on.
     var index = x + 1;
     
     // Empty checks
@@ -413,9 +417,15 @@ function GenerateAmortizationTable() {
       
       return -2;
     }
+    
+    // Make a copy of the object, using this stackoverflow post and this github issue
+    // as a resource for figuring out how to do this.
+    // https://stackoverflow.com/questions/30578254/
+    // https://github.com/vuejs/vue/issues/158
+    loanData.push(Vue.util.extend({}, currLoan))
   }
   
-  if (parseFloat(totalMonthlyPayment) < parseFloat(monthlyPayment))
+  if (parseFloat(vm.largerPayment) < parseFloat(vm.totalPayments))
   {
     // For Sweet Alerts Docs: https://sweetalert.js.org/docs/
     swal({
@@ -426,91 +436,85 @@ function GenerateAmortizationTable() {
     return -2;
   }
   
-  // Calculate the standard amortization
-  var amortizationTable = CalculateTotalInterest(startingBalance, monthlyPayment, interestRate);
+  // Calculate the standard amortization (hardcoded to Avalanche for now!)
+  var amortizationTable = CalculateInterestByLoan(loanData, 1);
   
   // If the user provided a Total Monthly Payment, calculate the amortization for that amount too.
   // But, pull out the Debt Free Date and Interest amount, since we just want those for comparision.
-  if (parseFloat(totalMonthlyPayment) > 0)
+  /*
+  if (parseFloat(vm.largerPayment) > 0)
   {
     var additionalMonthlyCalculation = CalculateAdditionalMonthlyPayment(startingBalance, totalMonthlyPayment, interestRate);
     amortizationTable["AdditionalMonthlyCalculation"] = additionalMonthlyCalculation;
   }
+  */
   
   return amortizationTable;
 }
 
-// Calculates the Debt Free Date / Interest for the "Total Monthly Payment" amount.
-function CalculateAdditionalMonthlyPayment(startingBalance, monthlyPayment, interestRate)
-{
-  // Build up the amortization table, so we can pull out the debt free date and interest amount.
-  var amortizationTable = CalculateTotalInterest(startingBalance, monthlyPayment, interestRate);
+// Calculates interest for multiple loans by sorting based on either lowest Interest Rate
+// or lowest Total Balance.
+function CalculateInterestByLoan(loanData, loanMethod, useLargerPayment) {
+
+  // Two ways we want to calculate interest/loan amortization on:
+  // Avalanche - paying off the highest interest rates first, which pays them off the
+  //             quickest overall and saves the most on interest
+  // Snowball - paying off smallest balances first, to encourage yourself (psychologically)
+  //            to continue paying off the loans  
   
-  // Calculate Debt Free Date and Interest Paid
-  var debtFreeDate;
-  var totalInterest = 0;
+  // We shall support both methods, and sort the array for paying off based on
+  // loanMethod being 1 (avalanche) or 2 (snowball)
   
-  // Interest Array for comparing to Minimum monthly payment.
-  var interestArr = [];
-  
-  for (var key in amortizationTable)
+  // Avalanche method - descending order interest rate
+  if (loanMethod == 1)
   {
-    var amortizationRow = amortizationTable[key];
-    
-    // Get the Month, this will end up being the DebtFreeDate
-    debtFreeDate = amortizationRow["Month"];
-    
-    // Also get the Interest and sum it up.
-    totalInterest += amortizationRow["InterestPaid"];
-    
-    // Add to the interest Array
-    interestArr.push(totalInterest);
+    loanData.sort(function(a, b) {
+      return b.interestRate - a.interestRate;
+    });
+  }
+  // Snowball method - ascending order balance
+  else if (loanMethod == 2)
+  {
+    loanData.sort(function(a, b) {
+      return a.balance - b.balance;
+    });
   }
   
-  var totalMonthlyObj = {};
-  totalMonthlyObj["DebtFreeDate"] = debtFreeDate;
-  totalMonthlyObj["InterestAmount"] = totalInterest;
-  totalMonthlyObj["InterestArray"] = interestArr;
-  return totalMonthlyObj;
+  // JSON results object for displaying in a table
+  var resultsObj = {};
+  var totalInterest = 0;
+  var totalPayment = 0;
+  
+  // Need to loop on totalBalance so we make sure to pay off all loan balances!
+  var totalBalance = loanData.map(balance).reduce(balanceTotal);
+  
+  // Loop through and pay each loan by month. Once a loan is paid off, apply
+  // it's minimum payment to the next loan in the list (sorted based on loanMethod above)
+  while (totalBalance > 0) 
+  {
+    for(var i = 0; i < loanData.length; i++)
+    {
+      // Pay a month toward the current loan
+      
+    }
+  }
+ 
+  return;
+}
+
+// Functions for the Map Reduce call to sum up all the loan balances
+function balance(loan) {
+  return loan.balance;
+}
+function balanceTotal(total, num) {
+  return total + num;
 }
 
 // Given a starting balance, a monthly loan payment, and the interest rate of
 // a loan, this function returns the total amount of interest paid over the
 // time of the loan.
-function CalculateTotalInterest(startingBalance, monthlyPayment, interestRate) {
-  var currentInterest = 0, newBalance = startingBalance, monthCount = 1;
-  
-  // JSON results object for displaying in a table
-  var resultsObj = {};
-  var totalInterest = 0;
-  
-  /*
-    Results Object looks like this, contains various fields we'll need for
-    calculating interest:
-      ResultsObj: {
-        ResultsObj: {
-          Month1: {
-            "Month": "March 2018"
-            "StartingBalance": 1000, 
-            "Repayment": 100, 
-            "InterestPaid": 3.3333333333333335, 
-            "PrincipalPaid": 96.66666666666667,
-            "TotalInterestPaid": 3.3333333333333335,       
-            "NewBalance": 903.3333333333334
-          }
-        }
-        Month2: {
-          ...
-        }
-        Month3: {
-          ...
-        }
-      }
-  */
-  
-  // Calculate Interest until the loan is paid off.
-  while (newBalance > 0)
-  {
+function TrackTotalInterest(startingBalance, monthlyPayment, interestRate) {
+
     var singleResult = {};
     
     // Using datejs, url: http://www.datejs.com/
@@ -579,4 +583,38 @@ function CalculateMonthlyInterest(currentBalance, interestRate) {
   
   // Interest = (interest rate / 12 payments per year) * loan principal
   return ( (interestRate / 12) * currentBalance );
+}
+
+// Calculates the Debt Free Date / Interest for the "Total Monthly Payment" amount.
+function CalculateAdditionalMonthlyPayment(startingBalance, monthlyPayment, interestRate)
+{
+  // Build up the amortization table, so we can pull out the debt free date and interest amount.
+  var amortizationTable = CalculateTotalInterest(startingBalance, monthlyPayment, interestRate);
+  
+  // Calculate Debt Free Date and Interest Paid
+  var debtFreeDate;
+  var totalInterest = 0;
+  
+  // Interest Array for comparing to Minimum monthly payment.
+  var interestArr = [];
+  
+  for (var key in amortizationTable)
+  {
+    var amortizationRow = amortizationTable[key];
+    
+    // Get the Month, this will end up being the DebtFreeDate
+    debtFreeDate = amortizationRow["Month"];
+    
+    // Also get the Interest and sum it up.
+    totalInterest += amortizationRow["InterestPaid"];
+    
+    // Add to the interest Array
+    interestArr.push(totalInterest);
+  }
+  
+  var totalMonthlyObj = {};
+  totalMonthlyObj["DebtFreeDate"] = debtFreeDate;
+  totalMonthlyObj["InterestAmount"] = totalInterest;
+  totalMonthlyObj["InterestArray"] = interestArr;
+  return totalMonthlyObj;
 }
