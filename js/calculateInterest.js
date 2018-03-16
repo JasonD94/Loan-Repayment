@@ -90,7 +90,7 @@ var vm = new Vue({
       }
       
       // Return the Average Interest Rate across all loans
-      return total / this.loans.length;
+      return (total / this.loans.length).toFixed(2) + "%";
     }
   },
   methods: {
@@ -482,14 +482,14 @@ function CalculateInterestByLoan(loanData, loanMethod, useLargerPayment) {
   // We shall support both methods, and sort the array for paying off based on
   // loanMethod being 1 (avalanche) or 2 (snowball)
   
-  // Avalanche method - descending order interest rate
+  // Avalanche method - lowest interest rate first
   if (loanMethod == 1)
   {
     loanData.sort(function(a, b) {
-      return b.interestRate - a.interestRate;
+      return a.interestRate - b.interestRate;
     });
   }
-  // Snowball method - ascending order balance
+  // Snowball method - lowest balance first
   else if (loanMethod == 2)
   {
     loanData.sort(function(a, b) {
@@ -581,9 +581,25 @@ function CalculateInterestByLoan(loanData, loanMethod, useLargerPayment) {
       {
         // Make sure to add this loan's minimum payment to our "totalMinPayments"
         // tracker, so it's minimum payment can be applied to the next loan!
-        totalMinPayments += loanData[i].minimumPayment;
+        totalMinPayments += parseFloat(loanData[i].minimumPayment);
         loanData.splice(i, 1);
+        
+        // Also need to decrease i by 1, since we've just removed a loan!
+        // Otherwise additional monthly payments won't be applied, we'll
+        // just end up breaking out of this loop actually! Also, make sure not 
+        // to set i less than 0 or we'll have an array out of bounds exception
+        i--;
+        if (i < 0)
+        {
+          i = -1;   // -1 here because of i++ turning -1 into 0 which is the starting index
+        }
       }
+    }
+    
+    // Check to see if totalBalance is less than 0 (fix for -0.00 appearing)
+    if (totalBalance < 0)
+    {
+      totalBalance = 0;
     }
     
     // Add results for TotalInterestPaid and New Balance
