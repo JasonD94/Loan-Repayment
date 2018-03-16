@@ -385,6 +385,46 @@ function GenerateAmortizationTable() {
     return -3;
   }
   
+  var loanData = GetLoanData();
+  var loanDataAdditional = GetLoanData();
+  
+  if (parseFloat(vm.largerPayment) < parseFloat(vm.totalPayments))
+  {
+    // For Sweet Alerts Docs: https://sweetalert.js.org/docs/
+    swal({
+      type: "error",
+      text: "Total Monthly Payment cannot be less than Monthly Payment"
+    });
+    
+    return -2;
+  }
+  
+  // TODO: Implement a way to switch between loan repayment methods
+  var paymentMethod = 1;
+  
+  // Whether to use the "Larger Payment" field
+  var useLargerPayment = 0;
+  if (parseFloat(vm.totalPayments) > 0)
+  {
+    useLargerPayment = 1;
+  }
+  
+  // Calculate the standard amortization
+  var amortizationTable = CalculateInterestByLoan(loanData, paymentMethod, 0);
+  
+  // If the user provided a Total Monthly Payment, calculate the amortization for that amount too.
+  // But, pull out the Debt Free Date and Interest amount, since we just want those for comparision.
+  if (parseFloat(vm.largerPayment) > 0)
+  {
+    var additionalMonthlyCalculation = CalculateAdditionalMonthlyPayment(loanDataAdditional, paymentMethod, 0);
+    amortizationTable["AdditionalMonthlyCalculation"] = additionalMonthlyCalculation;
+  }
+  
+  return amortizationTable;
+}
+
+function GetLoanData()
+{
   // Make a copy of the Loan Data without bindings to the user input, so we 
   // do not mess up the ability to add/remove loans!
   var loanData = [];
@@ -441,32 +481,7 @@ function GenerateAmortizationTable() {
     loanData.push(Vue.util.extend({}, currLoan))
   }
   
-  if (parseFloat(vm.largerPayment) < parseFloat(vm.totalPayments))
-  {
-    // For Sweet Alerts Docs: https://sweetalert.js.org/docs/
-    swal({
-      type: "error",
-      text: "Total Monthly Payment cannot be less than Monthly Payment"
-    });
-    
-    return -2;
-  }
-  
-  // Calculate the standard amortization (hardcoded to Avalanche for now!)
-  // Also hard coded not to look at larger monthly payment too
-  var amortizationTable = CalculateInterestByLoan(loanData, 1, 0);
-  
-  // If the user provided a Total Monthly Payment, calculate the amortization for that amount too.
-  // But, pull out the Debt Free Date and Interest amount, since we just want those for comparision.
-  /*
-  if (parseFloat(vm.largerPayment) > 0)
-  {
-    var additionalMonthlyCalculation = CalculateAdditionalMonthlyPayment(startingBalance, totalMonthlyPayment, interestRate);
-    amortizationTable["AdditionalMonthlyCalculation"] = additionalMonthlyCalculation;
-  }
-  */
-  
-  return amortizationTable;
+  return loanData;
 }
 
 // Calculates interest for multiple loans by sorting based on either lowest Interest Rate
@@ -503,6 +518,23 @@ function CalculateInterestByLoan(loanData, loanMethod, useLargerPayment) {
   var totalInterestPaid = 0;  // Track the total interest paid across all loans
   var monthCount = 1;
   
+  // Total Payments of all loans
+  var totalPayments = loanData.map(payment).reduce(paymentTotal);
+  
+  // If we're using the largerPayment, then totalMinPayment automatically gets set
+  // to whatever additional we want to apply.
+  if (useLargerPayment && parseFloat(vm.largerPayment) > 0)
+  {
+    totalMinPayments = parseFloat(vm.largerPayment) - totalPayments;
+    
+    // Shouldn't happen, but just incase, make sure totalMinPayments is greater than 0
+    // Otherwise, set it to 0 to prevent errors
+    if (totalMinPayments < 0)
+    {
+      totalMinPayments = 0;
+    }
+  }
+  
   // Keeping track of the total balance of all loans
   var totalBalance = loanData.map(balance).reduce(balanceTotal);
   
@@ -525,26 +557,9 @@ function CalculateInterestByLoan(loanData, loanMethod, useLargerPayment) {
     
     var loanPayment = 0;
     
+    // Pay a month toward the current loan
     for(var i = 0; i < loanData.length; i++)
     {
-      // Pay a month toward the current loan
-      /*
-          
-          if we have two loans, like:
-          0: {name: "Loan 2", balance: "1000", minimumPayment: "100", interestRate: "9.99"}
-          1: {name: "Loan 1", balance: "25000", minimumPayment: "450", interestRate: "4.99"}
-        
-          Then we have:
-          totalInterest = 0;
-          totalMinPayments = 0
-          largerPayment = (ignoring this for now)
-          totalBalance = 26000
-      
-          So month 1, we pay the min payment on loan2, and the min payment on loan1.
-          Same for future months until loan2 is paid off.
-          Then we start paying 550 a month (adding loan2's min payment) toward loan1.
-      */
-      
       // Need to apply additional minimum payments / the larger payment (if it exists)
       // to the first loan in the array. This would be either the lowest interest loan
       // or the lowest balance loan depending on repayment method selected.
@@ -556,8 +571,6 @@ function CalculateInterestByLoan(loanData, loanMethod, useLargerPayment) {
       {
         loanPayment = parseFloat(loanData[i].minimumPayment);
       }
-      
-      // TODO: Also check LargerPayment and apply it too.
       
       // Calculate One month's payment for the current loan
       var currentLoanPayment = OneMonthlyPayment(loanData[i].balance, loanPayment, loanData[i].interestRate);
@@ -619,6 +632,14 @@ function CalculateInterestByLoan(loanData, loanMethod, useLargerPayment) {
   }
   
   return resultsObj;
+}
+
+// Functions for the Map Reduce call to sum up all the loan payments
+function payment(loan) {
+  return parseFloat( loan.minimumPayment );
+}
+function paymentTotal(total, num) {
+  return total + num;
 }
 
 // Functions for the Map Reduce call to sum up all the loan balances
@@ -683,10 +704,10 @@ function CalculateMonthlyInterest(currentBalance, interestRate) {
 }
 
 // Calculates the Debt Free Date / Interest for the "Total Monthly Payment" amount.
-function CalculateAdditionalMonthlyPayment(startingBalance, monthlyPayment, interestRate)
+function CalculateAdditionalMonthlyPayment(loanData, paymentMethod, useLargerPayment)
 {
   // Build up the amortization table, so we can pull out the debt free date and interest amount.
-  var amortizationTable = CalculateTotalInterest(startingBalance, monthlyPayment, interestRate);
+  var amortizationTable = CalculateInterestByLoan(loanData, paymentMethod, 1);
   
   // Calculate Debt Free Date and Interest Paid
   var debtFreeDate;
