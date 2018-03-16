@@ -186,6 +186,16 @@ function OnCalculate() {
   {
     return;
   }
+  // User hasn't added a loan, because loanData is empty!
+  else if ( parseFloat(amortizationTable) == -3 )
+  {
+    swal({
+      type: "error",
+      html: "It looks like you haven't added a loan yet! Click the Add Loan button first please :)"
+    });
+    
+    return;
+  }
   
   // Make sure to Empty the table every run through!
   var tableBody = $("#loanCalculationOutput").empty();
@@ -369,6 +379,12 @@ function GenerateMinVsLargerPlot(monthsArr, minInterestArr, largerInterestArr)
 // for the given loan.
 function GenerateAmortizationTable() {
   
+  // Bomb out if the user hasn't added any loans yet.
+  if ( vm._data.loans.length == 0 )
+  {
+    return -3;
+  }
+  
   // Make a copy of the Loan Data without bindings to the user input, so we 
   // do not mess up the ability to add/remove loans!
   var loanData = [];
@@ -437,7 +453,8 @@ function GenerateAmortizationTable() {
   }
   
   // Calculate the standard amortization (hardcoded to Avalanche for now!)
-  var amortizationTable = CalculateInterestByLoan(loanData, 1);
+  // Also hard coded not to look at larger monthly payment too
+  var amortizationTable = CalculateInterestByLoan(loanData, 1, 0);
   
   // If the user provided a Total Monthly Payment, calculate the amortization for that amount too.
   // But, pull out the Debt Free Date and Interest amount, since we just want those for comparision.
@@ -482,87 +499,99 @@ function CalculateInterestByLoan(loanData, loanMethod, useLargerPayment) {
   
   // JSON results object for displaying in a table
   var resultsObj = {};
-  var totalInterest = 0;
-  var totalPayment = 0;
+  var totalMinPayments = 0;   // For loans that get paid off, track their min payment sum
+  var totalInterestPaid = 0;  // Track the total interest paid across all loans
+  var monthCount = 1;
   
-  // Need to loop on totalBalance so we make sure to pay off all loan balances!
+  // Keeping track of the total balance of all loans
   var totalBalance = loanData.map(balance).reduce(balanceTotal);
   
   // Loop through and pay each loan by month. Once a loan is paid off, apply
   // it's minimum payment to the next loan in the list (sorted based on loanMethod above)
-  while (totalBalance > 0) 
+  while (loanData.length > 0) 
   {
-    for(var i = 0; i < loanData.length; i++)
-    {
-      // Pay a month toward the current loan
-      
-    }
-  }
- 
-  return;
-}
-
-// Functions for the Map Reduce call to sum up all the loan balances
-function balance(loan) {
-  return loan.balance;
-}
-function balanceTotal(total, num) {
-  return total + num;
-}
-
-// Given a starting balance, a monthly loan payment, and the interest rate of
-// a loan, this function returns the total amount of interest paid over the
-// time of the loan.
-function TrackTotalInterest(startingBalance, monthlyPayment, interestRate) {
-
-    var singleResult = {};
+    // Total Result for all loans (sum of loans 1, 2, 3 etc single monthly payment)
+    var totalResult = {};
+    totalResult["InterestPaid"] = 0;    // Reset every loop
+    totalResult["PrincipalPaid"] = 0;   
+    totalResult["Repayment"] = 0;
     
     // Using datejs, url: http://www.datejs.com/
     // Can tweak this using standard DateTime formats: https://github.com/datejs/Datejs
-    singleResult["Month"] = Date.today().add(monthCount).months().toString('MMMM yyyy');
+    totalResult["Month"] = Date.today().add(monthCount).months().toString('MMMM yyyy');
     
-    // "Starting Balance" is the old newBalance
-    var startingBalance = newBalance;
-    singleResult["StartingBalance"] = startingBalance;    
+    // "Starting Balance" is the beginning balance before we apply the payment
+    totalResult["StartingBalance"] = totalBalance;
     
-    // Monthly Payment edge case: if StartingBalance is less than monthlyPayment,
-    // then startingBalance is all we will pay. Since we can't pay more than
-    // the actual principal amount obviously.
-    if (parseFloat(startingBalance) < parseFloat(monthlyPayment))
+    var loanPayment = 0;
+    
+    for(var i = 0; i < loanData.length; i++)
     {
-      singleResult["Repayment"] = startingBalance;
-    }
-    else
-    {
-      singleResult["Repayment"] = monthlyPayment;
+      // Pay a month toward the current loan
+      /*
+          
+          if we have two loans, like:
+          0: {name: "Loan 2", balance: "1000", minimumPayment: "100", interestRate: "9.99"}
+          1: {name: "Loan 1", balance: "25000", minimumPayment: "450", interestRate: "4.99"}
+        
+          Then we have:
+          totalInterest = 0;
+          totalMinPayments = 0
+          largerPayment = (ignoring this for now)
+          totalBalance = 26000
+      
+          So month 1, we pay the min payment on loan2, and the min payment on loan1.
+          Same for future months until loan2 is paid off.
+          Then we start paying 550 a month (adding loan2's min payment) toward loan1.
+      */
+      
+      // Need to apply additional minimum payments / the larger payment (if it exists)
+      // to the first loan in the array. This would be either the lowest interest loan
+      // or the lowest balance loan depending on repayment method selected.
+      if (i == 0 && totalMinPayments > 0)
+      {
+        loanPayment = parseFloat(loanData[i].minimumPayment) + totalMinPayments;
+      }
+      else
+      {
+        loanPayment = parseFloat(loanData[i].minimumPayment);
+      }
+      
+      // TODO: Also check LargerPayment and apply it too.
+      
+      // Calculate One month's payment for the current loan
+      var currentLoanPayment = OneMonthlyPayment(loanData[i].balance, loanPayment, loanData[i].interestRate);
+      
+      // Sum up the current Repayment / InterestPaid / PrincipalPaid
+      totalResult["Repayment"] += currentLoanPayment["Repayment"];
+      totalResult["InterestPaid"] += currentLoanPayment["InterestPaid"];
+      totalResult["PrincipalPaid"] += currentLoanPayment["PrincipalPaid"];
+      
+      // Sum up InterestPaid
+      totalInterestPaid += currentLoanPayment["InterestPaid"];
+      
+      // Remove the PrincipalPaid from this loan's balance.
+      loanData[i].balance -= currentLoanPayment["PrincipalPaid"];
+      
+      // Also remove it from the TotalBalance tracker
+      totalBalance -= currentLoanPayment["PrincipalPaid"];
+      
+      // Check to see if the loan's new balance is 0. If so, remove it.
+      if (currentLoanPayment["NewBalance"] <= 0)
+      {
+        // Make sure to add this loan's minimum payment to our "totalMinPayments"
+        // tracker, so it's minimum payment can be applied to the next loan!
+        totalMinPayments += loanData[i].minimumPayment;
+        loanData.splice(i, 1);
+      }
     }
     
-    // Math taken from here
-    // https://mozo.com.au/interest-rates/guides/calculate-interest-on-loan
-    currentInterest = CalculateMonthlyInterest(startingBalance, interestRate);
-    currentPrincipal = monthlyPayment - currentInterest;
-    newBalance = newBalance - (monthlyPayment - currentInterest);
-    
-    singleResult["InterestPaid"] = currentInterest;
-    singleResult["PrincipalPaid"] = currentPrincipal;
-    
-    // Sum up InterestPaid over time for the Min Vs Larger payment plot
-    totalInterest += currentInterest; 
-    singleResult["TotalInterestPaid"] = totalInterest;
-    
-    // New Balance edge case: can't be less than 0, if it's negative, make it 0.
-    // This only happens on the last run through the loop.
-    if (newBalance < 0)
-    {
-      singleResult["NewBalance"] = 0;
-    }
-    else
-    {
-      singleResult["NewBalance"] = newBalance;
-    }
+    // Add results for TotalInterestPaid and New Balance
+    totalResult["TotalInterestPaid"] = totalInterestPaid;
+    totalResult["NewBalance"] = totalBalance;
     
     // Add a row into the results object
-    resultsObj["Month" + monthCount] = singleResult;
+    resultsObj["Month" + monthCount] = totalResult;
     monthCount++;
     
     // Check for infinite loop, if we hit this many months, the user entered too
@@ -574,6 +603,58 @@ function TrackTotalInterest(startingBalance, monthlyPayment, interestRate) {
   }
   
   return resultsObj;
+}
+
+// Functions for the Map Reduce call to sum up all the loan balances
+function balance(loan) {
+  return parseFloat( loan.balance );
+}
+function balanceTotal(total, num) {
+  return total + num;
+}
+
+// Given a starting balance, a monthly loan payment, and the interest rate of
+// a loan, this function returns the total amount of interest paid over the
+// time of the loan.
+function OneMonthlyPayment(startingBalance, monthlyPayment, interestRate) {
+
+  var singleResult = {};
+  
+  // Monthly Payment edge case: if StartingBalance is less than monthlyPayment,
+  // then startingBalance is all we will pay. Since we can't pay more than
+  // the actual principal amount obviously.
+  if (parseFloat(startingBalance) < parseFloat(monthlyPayment))
+  {
+    singleResult["Repayment"] = startingBalance;
+  }
+  else
+  {
+    singleResult["Repayment"] = monthlyPayment;
+  }
+  
+  // Math taken from here
+  // https://mozo.com.au/interest-rates/guides/calculate-interest-on-loan
+  var currentInterest = CalculateMonthlyInterest(startingBalance, interestRate);
+  var currentPrincipal = monthlyPayment - currentInterest;
+  var newBalance = startingBalance - (monthlyPayment - currentInterest);
+  
+  singleResult["InterestPaid"] = currentInterest;
+  singleResult["PrincipalPaid"] = currentPrincipal;
+  
+  // New Balance edge case: can't be less than 0, if it's negative, make it 0.
+  // Also can't have PrincipalPaid be larger than the startingBalance either!
+  // This only happens on the last run through the loop.
+  if (newBalance < 0)
+  {
+    singleResult["PrincipalPaid"] = startingBalance;
+    singleResult["NewBalance"] = 0;
+  }
+  else
+  {
+    singleResult["NewBalance"] = newBalance;
+  }
+  
+  return singleResult;
 }
 
 // Calculates one month of interest
